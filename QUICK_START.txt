@@ -1,0 +1,233 @@
+⚡ QUICK START - Sistema de Reportes Empresariales
+
+═══════════════════════════════════════════════════════════════
+
+📋 INSTALACIÓN RÁPIDA (5 MINUTOS)
+
+═══════════════════════════════════════════════════════════════
+
+OPCIÓN 1: Windows (Recomendado)
+───────────────────────────────
+
+1. Descarga Python desde: https://www.python.org/downloads/
+2. Durante la instalación, MARCA "Add Python to PATH"
+3. En este proyecto, ejecuta:
+
+   setup.bat
+
+4. Espera a que termine la instalación
+5. La ventana te pedirá ejecutar: python run.py
+
+
+OPCIÓN 2: Windows (Manual)
+──────────────────────────
+
+> python -m venv venv
+> venv\Scripts\activate
+> pip install -r requirements.txt
+> python run.py
+
+
+OPCIÓN 3: Linux/Mac
+───────────────────
+
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ pip install -r requirements.txt
+$ python run.py
+
+
+═══════════════════════════════════════════════════════════════
+
+🎯 USO BÁSICO (PRIMEROS PASOS)
+
+═══════════════════════════════════════════════════════════════
+
+1. ABRIR LA APLICACIÓN
+   ─────────────────────
+   
+   • Abre tu navegador
+   • Ve a: http://localhost:5000
+   • ¡Verás la página de inicio!
+
+2. CARGAR ARCHIVOS EXCEL
+   ─────────────────────
+   
+   • Click en "Cargar Excel"
+   • Arrastra tu archivo o click para seleccionar
+   • Archivo debe tener estas 6 columnas:
+     - WO
+     - Usuario Asignado
+     - Fecha (YYYY-MM-DD)
+     - Horas Aprobadas
+     - Horas Reales
+     - Grupo
+
+3. VER REPORTES
+   ────────────
+   
+   • Click en "Reportes"
+   • Busca por usuario, fecha, grupo
+   • Click en "Buscar"
+   • ¡Verás tus datos!
+
+4. DESCARGAR EXCEL
+   ───────────────
+   
+   • En reportes, busca un usuario
+   • Click "Descargar Usuario" (individual)
+   • O "Descargar Global" (consolidado)
+
+5. VER GRÁFICOS
+   ────────────
+   
+   • Click en "Dashboard"
+   • Ve gráficos de horas, usuarios, grupos
+   • Cambia a modo usuario para análisis individual
+
+
+═══════════════════════════════════════════════════════════════
+
+📁 ESTRUCTURA MÍNIMA
+
+═══════════════════════════════════════════════════════════════
+
+app/                    ← Código principal
+  models/              ← Base de datos
+  routes/              ← Páginas y API
+  services/            ← Lógica
+  templates/           ← HTML
+  static/              ← CSS, JS
+
+config.py              ← Configuración
+run.py                 ← Ejecutar aquí
+.env                   ← Secretos (no tocar)
+requirements.txt       ← Dependencias
+
+README.md              ← Guía completa
+GUIA_DE_USO.md        ← Cómo usar
+
+
+═══════════════════════════════════════════════════════════════
+
+⚙️ CONFIGURACIÓN ESENCIAL
+
+═══════════════════════════════════════════════════════════════
+
+EDITAR ARCHIVO: .env
+
+Para correos automáticos (opcional):
+
+MAIL_USERNAME=tu_email@gmail.com
+MAIL_PASSWORD=tu_contraseña_app
+MAIL_RECIPIENTS=correo@empresa.com
+
+Nota: Si usas Gmail, generar "contraseña de aplicación":
+https://myaccount.google.com → Seguridad → Contraseña de aplicación
+
+
+═══════════════════════════════════════════════════════════════
+
+📊 EJEMPLO DE ARCHIVO EXCEL
+
+═══════════════════════════════════════════════════════════════
+
+Columna A: WO              → WO-1001
+Columna B: Usuario         → Juan Pérez
+Columna C: Fecha           → 2026-02-26
+Columna D: Horas Apr.      → 8.0
+Columna E: Horas Real.     → 7.5
+Columna F: Grupo           → Desarrollo
+
+✅ CORRECTO
+─────────
+
+| WO-1001 | Juan Pérez | 2026-02-26 | 8.0 | 7.5 | Desarrollo |
+| WO-1002 | María Gómez| 2026-02-26 | 8.0 | 8.2 | QA         |
+
+❌ INCORRECTO
+──────────
+
+| WO-1001 | Juan | 26/02/2026 | ocho | siete | Dev |
+(Fechas en formato incorrecto, números como texto)
+
+
+═══════════════════════════════════════════════════════════════
+
+🆘 SOLUCIÓN RÁPIDA DE PROBLEMAS
+
+═══════════════════════════════════════════════════════════════
+
+❌ "No se encuentra Python"
+✅ Instala Python desde python.org (marca "Add to PATH")
+
+❌ "Módulo no encontrado"
+✅ Ejecuta: pip install -r requirements.txt
+
+❌ "Puerto 5000 en uso"
+✅ Cambia puerto en .env: FLASK_PORT=5001
+
+❌ "Error de base de datos"
+✅ Elimina "reportes.db" y reinicia
+
+❌ "Archivo Excel no se carga"
+✅ Verifica que tenga las 6 columnas exactas
+
+❌ "Gráficos no se ven"
+✅ Activa JavaScript en tu navegador
+
+
+═══════════════════════════════════════════════════════════════
+
+🎓 PRÓXIMO PASO
+
+═══════════════════════════════════════════════════════════════
+
+Lee la documentación completa:
+
+📖 README.md              - Guía general
+👤 GUIA_DE_USO.md        - Cómo usar cada función
+💻 TECHNICAL_DOCS.md     - Para desarrolladores
+🚀 DEPLOYMENT.md         - Para poner en producción
+💡 EJEMPLO_EXCEL.md      - Formato exacto del Excel
+
+
+═══════════════════════════════════════════════════════════════
+
+✅ VERIFICACIÓN RÁPIDA
+
+═══════════════════════════════════════════════════════════════
+
+Después de ejecutar "python run.py", verifica:
+
+✅ Navegador abre: http://localhost:5000
+✅ Ves "Bienvenido al Sistema de Reportes"
+✅ Botones funcionan y cargan contenido
+✅ Formularios responden al hacer click
+
+Si todo funciona: ¡LISTO! 🎉
+
+
+═══════════════════════════════════════════════════════════════
+
+📞 AYUDA
+
+═══════════════════════════════════════════════════════════════
+
+• Documentación: Lee README.md
+• Errores: Revisa logs/app.log
+• Soporte: Contacta al equipo técnico
+• Ejemplos: Ver EJEMPLO_EXCEL.md
+
+
+═══════════════════════════════════════════════════════════════
+
+🎉 ¡YA ESTÁS LISTO!
+
+   Sistema de Reportes Empresariales v1.0.0
+   
+   Diseñado para ser simple, potente y confiable.
+   
+   ¡Que lo disfrutes! 🚀
+
+═══════════════════════════════════════════════════════════════

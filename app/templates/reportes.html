@@ -1,0 +1,750 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-table"></i> Vista de Reportes
+            </h2>
+            
+            <!-- Instrucciones para enviar correos -->
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <h6 class="alert-heading">
+                    <i class="fas fa-envelope me-2"></i>¿Cómo enviar reportes por correo?
+                </h6>
+                <ol class="mb-0 small">
+                    <li>Selecciona un <strong>Usuario</strong> en el filtro de arriba</li>
+                    <li>Haz clic en el botón <strong>"Enviar por Correo"</strong> (se mostrará cuando selecciones un usuario)</li>
+                    <li>Ingresa el correo electrónico destino</li>
+                    <li>Haz clic en <strong>"Enviar"</strong> y ¡listo!</li>
+                </ol>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0" style="font-size: 0.95rem;"><i class="fas fa-filter"></i> Filtros</h5>
+        </div>
+        <div class="card-body" style="padding: 0.75rem 1rem;">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Usuario</label>
+                    <input type="text" id="searchUsuario" class="form-control form-control-sm" list="usuariosList" placeholder="Buscar usuario..."  style="font-size: 0.85rem;">
+                    <datalist id="usuariosList"></datalist>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Fecha Inicio</label>
+                    <input type="date" id="fechaInicio" class="form-control form-control-sm" style="font-size: 0.85rem;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Fecha Fin</label>
+                    <input type="date" id="fechaFin" class="form-control form-control-sm" style="font-size: 0.85rem;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Grupo</label>
+                    <input type="text" id="grupoFilter" class="form-control form-control-sm" list="gruposList" placeholder="Buscar grupo..." style="font-size: 0.85rem;">
+                    <datalist id="gruposList"></datalist>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Tipo</label>
+                    <select id="tipoFilter" class="form-select form-select-sm" style="font-size: 0.85rem;">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size: 0.85rem; margin-bottom: 0.25rem;">Status</label>
+                    <select id="statusFilter" class="form-select form-select-sm" style="font-size: 0.85rem;">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-12">
+                    <button class="btn btn-primary btn-sm" onclick="aplicarFiltros()" style="font-size: 0.85rem;">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="limpiarFiltros()" style="font-size: 0.85rem;">
+                        <i class="fas fa-redo"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="row mb-3" id="resumenRow">
+        <div class="col-md-3 mb-2">
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-body" style="padding: 0.75rem 1rem;">
+                    <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Total Horas Aprobadas</h6>
+                    <h4 id="totalAprobadas" style="margin: 0; font-size: 1.2rem;">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-body" style="padding: 0.75rem 1rem;">
+                    <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Total Horas Reales</h6>
+                    <h4 id="totalReales" style="margin: 0; font-size: 1.2rem;">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-body" style="padding: 0.75rem 1rem;">
+                    <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Diferencia</h6>
+                    <h4 id="totalDiferencia" style="margin: 0; font-size: 1.2rem;">0</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="card" style="margin-bottom: 0;">
+                <div class="card-body" style="padding: 0.75rem 1rem;">
+                    <h6 class="card-title" style="font-size: 0.8rem; margin-bottom: 0.3rem;">Total WO</h6>
+                    <h4 id="totalWO" style="margin: 0; font-size: 1.2rem;">0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de Descarga -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <button class="btn btn-success btn-sm" id="btnDescargarUsuario" onclick="descargarUsuario()" style="display: none; font-size: 0.85rem;">
+                <i class="fas fa-download"></i> Descargar Usuario
+            </button>
+            <button class="btn btn-warning btn-sm" id="btnEnviarCorreoUsuario" onclick="abrirModalCorreo()" style="display: none; font-size: 0.85rem;">
+                <i class="fas fa-envelope"></i> Enviar por Correo
+            </button>
+            <button class="btn btn-success btn-sm" onclick="descargarGlobal()" style="font-size: 0.85rem;">
+                <i class="fas fa-download"></i> Descargar Global
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de Reportes -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Reportes</h5>
+        </div>
+        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+            <table class="table table-hover mb-0" id="reportesTable" style="font-size: 0.85rem;">
+                <thead class="table-light">
+                    <tr>
+                        <th>WO</th>
+                        <th>Usuario</th>
+                        <th>Fecha</th>
+                        <th>Horas Aprobadas</th>
+                        <th>Horas Reales</th>
+                        <th>Diferencia</th>
+                        <th>Grupo</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="reportesBody">
+                    <tr><td colspan="8" class="text-center text-muted">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Paginación mejorada -->
+        <div class="card-footer d-flex align-items-center justify-content-between" style="padding: 0.75rem 1rem;">
+            <div class="d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                <span>Mostrar:</span>
+                <select id="itemsPerPage" class="form-select form-select-sm" style="width: 70px; font-size: 0.8rem;">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span>registros</span>
+            </div>
+            <nav aria-label="Paginación">
+                <ul class="pagination pagination-sm mb-0" id="paginacion">
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Modal para enviar por correo -->
+    <div class="modal fade" id="modalCorreo" tabindex="-1" aria-labelledby="modalCorreoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalCorreoLabel">
+                        <i class="fas fa-envelope"></i> Enviar Reporte por Correo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="correoDestino" class="form-label">Correo Electrónico:</label>
+                        <input type="email" class="form-control" id="correoDestino" placeholder="ejemplo@correo.com" required>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Se enviará el reporte con los filtros actuales aplicados.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info" onclick="enviarCorreo()">
+                        <i class="fas fa-send"></i> Enviar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let usuarioActual = '';
+let paginaActual = 1;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar reportes primero (más importante)
+    cargarReportes();
+    
+    // Cargar filtros después (en background)
+    setTimeout(cargarGrupos, 500);
+    
+    // Event listener para cambiar usuario (filtra automáticamente)
+    document.getElementById('searchUsuario').addEventListener('change', function() {
+        paginaActual = 1;
+        cargarReportes();
+    });
+    
+    // Event listener para cambiar grupo (filtra automáticamente)
+    document.getElementById('grupoFilter').addEventListener('change', function() {
+        paginaActual = 1;
+        cargarReportes();
+    });
+    
+    // Event listener para cambiar status (filtra automáticamente)
+    document.getElementById('statusFilter').addEventListener('change', function() {
+        paginaActual = 1;
+        cargarReportes();
+    });
+    
+    // Event listener para cambiar tipo (filtra automáticamente)
+    document.getElementById('tipoFilter').addEventListener('change', function() {
+        paginaActual = 1;
+        cargarReportes();
+    });
+    
+    // Event listener para cambiar items por página
+    document.getElementById('itemsPerPage').addEventListener('change', function() {
+        paginaActual = 1;
+        cargarReportes();
+    });
+});
+
+function cargarGrupos() {
+    // Cargar todos los filtros en una sola petición (más eficiente)
+    fetch('/filtros-combinados', {signal: AbortSignal.timeout(5000)})
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cargar usuarios en datalist
+            const datalistUsuarios = document.getElementById('usuariosList');
+            data.usuarios.forEach(usuario => {
+                const option = document.createElement('option');
+                option.value = usuario;
+                datalistUsuarios.appendChild(option);
+            });
+            
+            // Cargar grupos en datalist
+            const datalistGrupos = document.getElementById('gruposList');
+            data.grupos.forEach(grupo => {
+                const option = document.createElement('option');
+                option.value = grupo;
+                datalistGrupos.appendChild(option);
+            });
+            
+            // Cargar status en select
+            const selectStatus = document.getElementById('statusFilter');
+            data.status.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                selectStatus.appendChild(option);
+            });
+            
+            // Cargar tipos en select
+            const selectTipo = document.getElementById('tipoFilter');
+            if (data.tipos) {
+                data.tipos.forEach(tipo => {
+                    const option = document.createElement('option');
+                    option.value = tipo;
+                    option.textContent = tipo;
+                    selectTipo.appendChild(option);
+                });
+            }
+        }
+    })
+    .catch(e => console.warn('Error cargando filtros', e));
+}
+
+function aplicarFiltros() {
+    paginaActual = 1;
+    cargarReportes();
+}
+
+function limpiarFiltros() {
+    document.getElementById('searchUsuario').value = '';
+    document.getElementById('fechaInicio').value = '';
+    document.getElementById('fechaFin').value = '';
+    document.getElementById('grupoFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('tipoFilter').value = '';
+    paginaActual = 1;
+    cargarReportes();
+}
+
+function cargarReportes() {
+    const params = new URLSearchParams();
+    params.append('page', paginaActual);
+    
+    // Obtener items por página
+    const itemsPerPage = document.getElementById('itemsPerPage').value;
+    if (itemsPerPage) params.append('per_page', itemsPerPage);
+    
+    // Obtener usuario del select
+    const usuario = document.getElementById('searchUsuario').value;
+    if (usuario) {
+        params.append('usuario', usuario);
+    }
+    
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('fechaFin').value;
+    if (fechaFin) params.append('fecha_fin', fechaFin);
+    
+    const grupo = document.getElementById('grupoFilter').value;
+    if (grupo) params.append('grupo', grupo);
+    
+    const tipo = document.getElementById('tipoFilter').value;
+    if (tipo) params.append('tipo', tipo);
+    
+    const status = document.getElementById('statusFilter').value;
+    if (status) params.append('status', status);
+
+    fetch('/reportes?' + params, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            mostrarReportes(data.reportes);
+            mostrarTotales(data.totales || {});
+            mostrarPaginacion(data.paginacion);
+            
+            // Mostrar/ocultar botones de usuario
+            const usuario = document.getElementById('searchUsuario').value;
+            document.getElementById('btnDescargarUsuario').style.display = 
+                usuario ? 'inline-block' : 'none';
+            document.getElementById('btnEnviarCorreoUsuario').style.display = 
+                usuario ? 'inline-block' : 'none';
+        } else {
+            mostrarReportes([]);
+            console.error('Error en la respuesta:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error cargando reportes:', error);
+        const tbody = document.getElementById('reportesBody');
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+    });
+}
+
+function mostrarReportes(reportes) {
+    const tbody = document.getElementById('reportesBody');
+    
+    if (reportes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No hay reportes</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = reportes.map(r => {
+        // Determinar color del badge según status
+        let badgeClass = 'bg-secondary';
+        if (r.status === 'Closed') badgeClass = 'bg-success';
+        else if (r.status === 'In Progress') badgeClass = 'bg-warning text-dark';
+        else if (r.status === 'Pending') badgeClass = 'bg-danger';
+        else if (r.status === 'Completed') badgeClass = 'bg-primary';
+        else if (r.status === 'Cancelled') badgeClass = 'bg-dark';
+        else if (r.status === 'Assigned') badgeClass = 'bg-info';
+        
+        return `
+            <tr data-status="${r.status}">
+                <td>${r.wo}</td>
+                <td>${r.usuario_asignado}</td>
+                <td>${r.fecha}</td>
+                <td>${formatearNumero(r.horas_aprobadas, 2)}</td>
+                <td>${formatearNumero(r.horas_reales, 2)}</td>
+                <td class="${r.diferencia > 0 ? 'text-danger' : 'text-success'}">
+                    ${formatearNumero(r.diferencia, 2)}
+                </td>
+                <td>${r.grupo}</td>
+                <td><span class="badge ${badgeClass}">${r.status}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function formatearNumero(numero, decimales = 2) {
+    // Validar que número sea un número válido
+    if (numero === undefined || numero === null || isNaN(numero)) {
+        return '0';
+    }
+    
+    const factor = Math.pow(10, decimales);
+    const rounded = Math.round(numero * factor) / factor;
+    const formatted = rounded.toFixed(decimales);
+    
+    // Separar enteros de decimales
+    const [parteEntera, parteDecimal] = formatted.split('.');
+    
+    // Agregar puntos cada 3 dígitos en la parte entera
+    const conMiles = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    // Si no hay decimales, retornar solo la parte entera formateada
+    if (!parteDecimal || parteDecimal === '00' || decimales === 0) {
+        return conMiles;
+    }
+    
+    // Retornar con coma como separador decimal
+    return `${conMiles},${parteDecimal}`;
+}
+
+function mostrarTotales(totales) {
+    if (!totales) {
+        totales = { total_aprobadas: 0, total_reales: 0, total_wo: 0 };
+    }
+    
+    const totalAprobadas = totales.total_aprobadas || totales.horas_aprobadas || 0;
+    const totalReales = totales.total_reales || totales.horas_reales || 0;
+    const totalWO = totales.total_wo || totales.total_registros || 0;
+    
+    document.getElementById('totalAprobadas').textContent = formatearNumero(totalAprobadas, 2);
+    document.getElementById('totalReales').textContent = formatearNumero(totalReales, 2);
+    const diferencia = (totalReales - totalAprobadas).toFixed(2);
+    document.getElementById('totalDiferencia').textContent = formatearNumero(diferencia, 2);
+    document.getElementById('totalWO').textContent = formatearNumero(totalWO, 0);
+}
+
+function mostrarPaginacion(paginacion) {
+    const ul = document.getElementById('paginacion');
+    ul.innerHTML = '';
+    
+    const totalPages = paginacion.total_paginas;
+    const currentPage = paginacion.pagina_actual;
+    
+    // Ir al primero
+    const liFirst = document.createElement('li');
+    liFirst.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    liFirst.innerHTML = `
+        <a class="page-link" href="#" onclick="irPagina(1); return false;" title="Ir al primero">
+            <i class="fas fa-chevron-double-left"></i> Ir al primero
+        </a>
+    `;
+    ul.appendChild(liFirst);
+    
+    // Anterior
+    const liPrev = document.createElement('li');
+    liPrev.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    liPrev.innerHTML = `
+        <a class="page-link" href="#" onclick="irPagina(${currentPage - 1}); return false;" title="Anterior">
+            <i class="fas fa-chevron-left"></i> Anterior
+        </a>
+    `;
+    ul.appendChild(liPrev);
+    
+    // Números de página
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    // Ajustar si estamos cerca del inicio o del final
+    if (currentPage <= 3) {
+        endPage = Math.min(totalPages, 5);
+    } else if (currentPage > totalPages - 3) {
+        startPage = Math.max(1, totalPages - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="irPagina(${i}); return false;">${i}</a>`;
+        ul.appendChild(li);
+    }
+    
+    // Siguiente
+    const liNext = document.createElement('li');
+    liNext.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    liNext.innerHTML = `
+        <a class="page-link" href="#" onclick="irPagina(${currentPage + 1}); return false;" title="Siguiente">
+            Siguiente <i class="fas fa-chevron-right"></i>
+        </a>
+    `;
+    ul.appendChild(liNext);
+    
+    // Ir al último
+    const liLast = document.createElement('li');
+    liLast.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+    liLast.innerHTML = `
+        <a class="page-link" href="#" onclick="irPagina(${totalPages}); return false;" title="Ir al último">
+            Ir al último <i class="fas fa-chevron-double-right"></i>
+        </a>
+    `;
+    ul.appendChild(liLast);
+}
+
+function irPagina(pagina) {
+    paginaActual = pagina;
+    cargarReportes();
+}
+
+function descargarUsuario() {
+    const usuario = document.getElementById('searchUsuario').value;
+    if (!usuario) {
+        alert('Selecciona un usuario primero');
+        return;
+    }
+
+    const params = new URLSearchParams();
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('fechaFin').value;
+    if (fechaFin) params.append('fecha_fin', fechaFin);
+    
+    const grupo = document.getElementById('grupoFilter').value;
+    if (grupo) params.append('grupo', grupo);
+    
+    const tipo = document.getElementById('tipoFilter').value;
+    if (tipo) params.append('tipo', tipo);
+    
+    const status = document.getElementById('statusFilter').value;
+    if (status) params.append('status', status);
+
+    window.location.href = `/export/usuario/${usuario}?${params}`;
+}
+
+function descargarGlobal() {
+    const params = new URLSearchParams();
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('fechaFin').value;
+    if (fechaFin) params.append('fecha_fin', fechaFin);
+    
+    const grupo = document.getElementById('grupoFilter').value;
+    if (grupo) params.append('grupo', grupo);
+    
+    const tipo = document.getElementById('tipoFilter').value;
+    if (tipo) params.append('tipo', tipo);
+    
+    const status = document.getElementById('statusFilter').value;
+    if (status) params.append('status', status);
+
+    window.location.href = `/export/global?${params}`;
+}
+
+function abrirModalCorreo() {
+    const usuario = document.getElementById('searchUsuario').value;
+    if (!usuario) {
+        alert('Selecciona un usuario primero');
+        return;
+    }
+    
+    // Limpiar campo de correo
+    document.getElementById('correoDestino').value = '';
+    
+    // Mostrar modal
+    const modal = new bootstrap.Modal(document.getElementById('modalCorreo'));
+    modal.show();
+}
+
+function enviarCorreo() {
+    const usuario = document.getElementById('searchUsuario').value;
+    const correo = document.getElementById('correoDestino').value;
+    
+    console.log('[INFO] Enviando correo - Usuario:', usuario, 'Email:', correo);
+    
+    if (!usuario) {
+        alert('Selecciona un usuario primero');
+        return;
+    }
+    
+    if (!correo) {
+        alert('Ingresa un correo electrónico');
+        return;
+    }
+    
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo)) {
+        alert('Ingresa un correo válido');
+        return;
+    }
+    
+    // Preparar datos del formulario
+    const formData = new FormData();
+    formData.append('usuario', usuario);
+    formData.append('email', correo);
+    
+    // Agregar filtros
+    const fechaInicio = document.getElementById('fechaInicio').value;
+    if (fechaInicio) formData.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('fechaFin').value;
+    if (fechaFin) formData.append('fecha_fin', fechaFin);
+    
+    const grupo = document.getElementById('grupoFilter').value;
+    if (grupo) formData.append('grupo', grupo);
+    
+    const tipo = document.getElementById('tipoFilter').value;
+    if (tipo) formData.append('tipo', tipo);
+    
+    const status = document.getElementById('statusFilter').value;
+    if (status) formData.append('status', status);
+    
+    // Obtener referencia al botón de forma confiable
+    const btnEnviar = document.querySelector('.modal-footer .btn-info');
+    if (!btnEnviar) {
+        console.error('No se encontró el botón de envío');
+        alert('Error: No se encontró el botón de envío');
+        return;
+    }
+    
+    const textoOriginal = btnEnviar.innerHTML;
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    
+    console.log('[SEND] Datos siendo enviados a /email/reporte-usuario');
+    
+    fetch('/email/reporte-usuario', {
+        method: 'POST',
+        body: formData,
+        signal: AbortSignal.timeout(30000)  // 30 segundos de timeout
+    })
+    .then(response => {
+        console.log('[RESPONSE] Respuesta recibida, status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        console.log('[SUCCESS] JSON parseado:', data);
+        
+        btnEnviar.disabled = false;
+        btnEnviar.innerHTML = textoOriginal;
+        
+        if (data.success) {
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalCorreo'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Limpiar campo de email
+            document.getElementById('correoDestino').value = '';
+            
+            // Mostrar toast de éxito con mensaje más visible
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3 position-fixed top-0 start-50 translate-middle-x';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.minWidth = '400px';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle me-2" style="font-size: 1.5em;"></i>
+                    <div>
+                        <strong>¡Éxito!</strong><br>
+                        Reporte enviado correctamente a: <strong>${correo}</strong>
+                    </div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Insertar alerta en el body
+            document.body.appendChild(alertDiv);
+            
+            // Remover alerta después de 6 segundos
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 6000);
+        } else {
+            // Mostrar error en modal
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'alert alert-danger mt-3';
+            errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${data.message}`;
+            
+            const modalBody = document.querySelector('#modalCorreo .modal-body');
+            modalBody.appendChild(errorMsg);
+            
+            // Remover mensaje de error después de 5 segundos
+            setTimeout(() => {
+                errorMsg.remove();
+            }, 5000);
+        }
+    })
+    .catch(error => {
+        console.error('[ERROR] Error en fetch:', error);
+        
+        btnEnviar.disabled = false;
+        btnEnviar.innerHTML = textoOriginal;
+        
+        // Determinar tipo de error
+        let tipoError = 'Desconocido';
+        if (error.name === 'AbortError') {
+            tipoError = 'Timeout - El servidor tardó demasiado en responder';
+        } else if (error.message.includes('Failed')) {
+            tipoError = 'Conexión rechazada - Verifica que el servidor esté corriendo';
+        }
+        
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'alert alert-danger mt-3';
+        errorMsg.innerHTML = `
+            <i class="fas fa-exclamation-circle"></i> 
+            Error al enviar correo: ${tipoError}<br>
+            <small>Detalles: ${error.message}</small>
+        `;
+        
+        const modalBody = document.querySelector('#modalCorreo .modal-body');
+        modalBody.appendChild(errorMsg);
+        
+        // Log completo del error para debugging
+        console.error('Detalles del error:', {
+            mensaje: error.message,
+            tipo: error.name,
+            usuario: usuario,
+            correo: correo,
+            timestamp: new Date().toISOString()
+        });
+        
+        setTimeout(() => {
+            errorMsg.remove();
+        }, 7000);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reportes redemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/" style="display: flex; align-items: center; gap: 10px;">
+                <img src="{{ url_for('static', filename='img/image.png') }}" alt="HITSS Logo" style="height: 40px; width: auto;">
+                <span>Reportes redemi</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/" data-i18n="Inicio">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/upload/archivo" data-i18n="Cargar Excel">Cargar Excel</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes" data-i18n="Reportes">Reportes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/dashboard" data-i18n="Dashboard">Dashboard</a>
+                        </li>
+                        {% if current_user.rol == 'admin' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin.dashboard') }}" data-i18n="Administración">
+                                <i class="fas fa-cog me-1"></i>Administración
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ current_user.nombre }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.perfil') }}">
+                                    <i class="fas fa-user me-2"></i>Mi Perfil
+                                </a></li>
+                                {% if current_user.rol == 'admin' %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                    <i class="fas fa-cog me-2"></i>Panel de Administración
+                                </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/" data-i18n="Inicio">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.registro') }}">
+                                <i class="fas fa-user-plus me-1"></i>Registrarse
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Preferences Bar -->
+    <div class="preferences-bar">
+        <div class="container-fluid">
+            <div class="preferences-content">
+                <div class="info-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                
+                <div class="preference-group">
+                    <label data-i18n="Tamaño:">Tamaño:</label>
+                    <div class="preference-buttons">
+                        <button id="font-small" class="pref-btn" title="Pequeño">A-</button>
+                        <button id="font-medium" class="pref-btn active" title="Normal">A</button>
+                        <button id="font-large" class="pref-btn" title="Grande">A+</button>
+                    </div>
+                </div>
+
+                <div class="preference-group">
+                    <label data-i18n="Contraste:">Contraste:</label>
+                    <button id="theme-toggle" class="pref-btn">
+                        <i class="fas fa-adjust"></i>
+                    </button>
+                </div>
+
+                <div class="preference-group">
+                    <label data-i18n="Idioma:">Idioma:</label>
+                    <select id="language-select" class="pref-select">
+                        <option value="es">ES</option>
+                        <option value="en">EN</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <footer class="modern-footer mt-5">
+        <div class="footer-main">
+            <div class="container-fluid">
+                <div class="footer-grid">
+                    <!-- Sección del Sistema -->
+                    <div class="footer-section">
+                        <div class="footer-logo">
+                            <i class="fas fa-chart-bar"></i>
+                            <h5>Reportes REDEMI</h5>
+                        </div>
+                        <p class="footer-description">Sistema moderno de gestión de reportes y análisis de datos empresariales.</p>
+                        <div class="footer-social">
+                            <a href="#" title="Facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" title="Twitter" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" title="LinkedIn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" title="Email" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+
+                    <!-- Sección de Navegación -->
+                    <div class="footer-section">
+                        <h6 class="footer-title">Navegación</h6>
+                        <ul class="footer-links">
+                            <li><a href="/">Inicio</a></li>
+                            {% if current_user.is_authenticated %}
+                            <li><a href="/upload/archivo">Cargar Archivos</a></li>
+                            <li><a href="/reportes">Reportes</a></li>
+                            <li><a href="/dashboard">Dashboard</a></li>
+                            {% else %}
+                            <li><a href="{{ url_for('auth.login') }}">Iniciar Sesión</a></li>
+                            <li><a href="{{ url_for('auth.registro') }}">Registro</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Sección de Información -->
+                    <div class="footer-section">
+                        <h6 class="footer-title">Información</h6>
+                        <ul class="footer-links">
+                            <li><a href="#">Términos de Servicio</a></li>
+                            <li><a href="#">Política de Privacidad</a></li>
+                            <li><a href="#">Contáctanos</a></li>
+                            <li><a href="#">Ayuda y Soporte</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Sección de Contacto -->
+                    <div class="footer-section">
+                        <h6 class="footer-title">Contacto</h6>
+                        <div class="footer-contact">
+                            <p><i class="fas fa-map-marker-alt"></i> Bogotá, Colombia</p>
+                            <p><i class="fas fa-phone"></i> +57 (1) 234-5678</p>
+                            <p><i class="fas fa-envelope"></i> info@redemi.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="container-fluid">
+                <div class="footer-bottom-content">
+                    <p class="copyright">&copy; 2026 Sistema de Gestión de Reportes REDEMI. Todos los derechos reservados.</p>
+                    <p class="footer-made">Desarrollado con <i class="fas fa-heart"></i> por HITSS</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

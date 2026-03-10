@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div class="row w-100">
+        <div class="col-md-6 col-lg-4 mx-auto">
+            <!-- Tarjeta de Login -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <!-- Logo/Título -->
+                    <div class="text-center mb-4">
+                        <h1 class="h3 fw-bold text-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                        </h1>
+                        <p class="text-muted small">Sistema de Reportes REDEMI</p>
+                    </div>
+
+                    <!-- Mensajes de alerta -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert" id="alert-{{ loop.index }}">
+                                    <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' }} me-2"></i>
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Formulario de Login -->
+                    <form method="POST" class="needs-validation" novalidate>
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-medium">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            <input 
+                                type="email" 
+                                class="form-control form-control-lg" 
+                                id="email" 
+                                name="email"
+                                placeholder="tu@email.com"
+                                required
+                                autocomplete="email"
+                            >
+                            <div class="invalid-feedback">
+                                Por favor ingresa un email válido.
+                            </div>
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-medium">
+                                <i class="fas fa-lock me-2"></i>Contraseña
+                            </label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="password" 
+                                name="password"
+                                placeholder="••••••••"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <div class="invalid-feedback">
+                                La contraseña es requerida.
+                            </div>
+                        </div>
+
+                        <!-- Recuérdame y Olvidé Contraseña -->
+                        <div class="mb-2 form-check">
+                            <input 
+                                type="checkbox" 
+                                class="form-check-input" 
+                                id="remember" 
+                                name="remember"
+                            >
+                            <label class="form-check-label" for="remember">
+                                Recuérdame en este dispositivo
+                            </label>
+                        </div>
+
+                        <!-- Olvidaste tu contraseña -->
+                        <div class="mb-4 text-end">
+                            <a href="{{ url_for('auth.forgot_password') }}" class="text-primary text-decoration-none small fw-medium">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
+
+                        <!-- Botón de Login -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold mb-3">
+                            <i class="fas fa-arrow-right me-2"></i>Ingresar
+                        </button>
+                    </form>
+
+                    <!-- Separador -->
+                    <div class="text-center my-3">
+                        <span class="text-muted small">¿No tienes cuenta?</span>
+                    </div>
+
+                    <!-- Botón de Registro -->
+                    <a href="{{ url_for('auth.registro') }}" class="btn btn-outline-primary btn-lg w-100 fw-semibold">
+                        <i class="fas fa-user-plus me-2"></i>Crear Cuenta
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pie de página -->
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    © 2026 Sistema de Reportes REDEMI. Todos los derechos reservados.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Validación de formulario
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            const form = document.querySelector('.needs-validation');
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    // Cerrar automáticamente los mensajes de alerta después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000); // 5 segundos
+        });
+    });
+</script>
+</script>
+
+<style>
+    .card {
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(2, 132, 199, 0.2) !important;
+    }
+
+    .form-control-lg {
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        padding: 12px 16px;
+        font-size: 1rem;
+    }
+
+    .form-control-lg:focus {
+        border-color: #0284c7;
+        box-shadow: 0 0 0 0.2rem rgba(2, 132, 199, 0.25);
+    }
+
+    .btn-lg {
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 1.05rem;
+    }
+
+    .btn-primary {
+        background-color: #0284c7;
+        border-color: #0284c7;
+    }
+
+    .btn-primary:hover {
+        background-color: #0272ae;
+        border-color: #0272ae;
+    }
+
+    .btn-outline-primary {
+        color: #0284c7;
+        border: 2px solid #0284c7;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #0284c7;
+        border-color: #0284c7;
+    }
+
+    /* Dark mode */
+    body.dark-mode .card {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    body.dark-mode .card:hover {
+        box-shadow: 0 10px 30px rgba(2, 132, 199, 0.4) !important;
+    }
+
+    body.dark-mode .form-control-lg {
+        background-color: #0f172a;
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .form-control-lg:focus {
+        background-color: #0f172a;
+        border-color: #0284c7;
+        color: #f1f5f9;
+    }
+
+    body.dark-mode .form-label,
+    body.dark-mode .form-check-label,
+    body.dark-mode .text-muted {
+        color: #cbd5e1 !important;
+    }
+
+    body.dark-mode h1 {
+        color: #f1f5f9;
+    }
+</style>
+{% endblock %}

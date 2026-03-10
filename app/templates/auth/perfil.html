@@ -1,0 +1,416 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4 mb-4">
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <!-- Encabezado con Información Básica -->
+            <div class="profile-header mb-4">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <h2 class="mb-0">{{ usuario.nombre }}</h2>
+                        <p class="mb-2 text-muted">{{ usuario.email }}</p>
+                        <span class="badge bg-success me-2">
+                            <i class="fas fa-check-circle me-1"></i>{{ usuario.rol|capitalize }}
+                        </span>
+                        {% if usuario.activo %}
+                            <span class="badge bg-info">Activo</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs de Opciones -->
+            <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" role="tab">
+                        <i class="fas fa-info-circle me-2"></i>Información
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="seguridad-tab" data-bs-toggle="tab" data-bs-target="#seguridad" role="tab">
+                        <i class="fas fa-lock me-2"></i>Seguridad
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="actividad-tab" data-bs-toggle="tab" data-bs-target="#actividad" role="tab">
+                        <i class="fas fa-history me-2"></i>Actividad
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="configuracion-tab" data-bs-toggle="tab" data-bs-target="#configuracion" role="tab">
+                        <i class="fas fa-cog me-2"></i>Configuración
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Contenido de Tabs -->
+            <div class="tab-content" id="profileTabsContent">
+                
+                <!-- Tab: Información -->
+                <div class="tab-pane fade show active" id="info" role="tabpanel">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-user me-2"></i>Información Personal
+                            </h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Nombre Completo</label>
+                                    <p class="h6 fw-semibold">{{ usuario.nombre }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Email</label>
+                                    <p class="h6 fw-semibold">{{ usuario.email }}</p>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Rol</label>
+                                    <p class="h6">
+                                        <span class="badge bg-primary">
+                                            {% if usuario.rol == 'admin' %}
+                                                Administrador
+                                            {% else %}
+                                                Usuario
+                                            {% endif %}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Estado de Cuenta</label>
+                                    <p class="h6">
+                                        {% if usuario.activo %}
+                                            <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactiva</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Fecha de Registro</label>
+                                    <p class="h6">{{ usuario.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small">Último Acceso</label>
+                                    <p class="h6">
+                                        {% if usuario.ultimo_login %}
+                                            {{ usuario.ultimo_login.strftime('%d/%m/%Y %H:%M') }}
+                                        {% else %}
+                                            Primera vez
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editarPerfil">
+                                <i class="fas fa-edit me-2"></i>Editar Información
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Seguridad -->
+                <div class="tab-pane fade" id="seguridad" role="tabpanel">
+                    <div class="card border-0 shadow mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-shield-alt me-2"></i>Cambiar Contraseña
+                            </h5>
+                            <form>
+                                <div class="mb-3">
+                                    <label for="passwordActual" class="form-label">Contraseña Actual</label>
+                                    <input type="password" class="form-control" id="passwordActual" placeholder="Ingresa tu contraseña actual">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="passwordNueva" class="form-label">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="passwordNueva" placeholder="Ingresa tu nueva contraseña">
+                                    <small class="text-muted">Mínimo 8 caracteres, incluye mayúsculas, minúsculas y números</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="passwordConfirm" class="form-label">Confirmar Contraseña</label>
+                                    <input type="password" class="form-control" id="passwordConfirm" placeholder="Confirma tu nueva contraseña">
+                                </div>
+                                <button type="button" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Actualizar Contraseña
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-mobile-alt me-2"></i>Autenticación de Dos Factores
+                            </h5>
+                            <p class="text-muted mb-3">Añade una capa extra de seguridad a tu cuenta</p>
+                            <button type="button" class="btn btn-outline-primary">
+                                <i class="fas fa-plus me-2"></i>Activar 2FA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Actividad -->
+                <div class="tab-pane fade" id="actividad" role="tabpanel">
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-clock me-2"></i>Actividad Reciente
+                            </h5>
+                            <div class="activity-timeline">
+                                <div class="activity-item">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Inicio de sesión</p>
+                                        <small class="text-muted">Hoy a las {{ usuario.ultimo_login.strftime('%H:%M') if usuario.ultimo_login else 'N/A' }}</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <i class="fas fa-file-upload text-info"></i>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Se cargó un archivo</p>
+                                        <small class="text-muted">Hace 2 días</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <i class="fas fa-user-check text-primary"></i>
+                                    <div>
+                                        <p class="mb-0 fw-semibold">Cuenta registrada</p>
+                                        <small class="text-muted">{{ usuario.fecha_registro.strftime('%d/%m/%Y') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Configuración -->
+                <div class="tab-pane fade" id="configuracion" role="tabpanel">
+                    <div class="card border-0 shadow mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-bell me-2"></i>Notificaciones
+                            </h5>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifiEmail" checked>
+                                <label class="form-check-label" for="notifiEmail">
+                                    Recibir notificaciones por email
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifiReportes" checked>
+                                <label class="form-check-label" for="notifiReportes">
+                                    Notificaciones de reportes completados
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="notifiDiarias">
+                                <label class="form-check-label" for="notifiDiarias">
+                                    Resumen diario de actividad
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow mb-3">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-download me-2"></i>Datos y Privacidad
+                            </h5>
+                            <button type="button" class="btn btn-outline-secondary mb-2">
+                                <i class="fas fa-download me-2"></i>Descargar mis datos
+                            </button>
+                            <p class="small text-muted">Descarga una copia de tu información personal</p>
+                        </div>
+                    </div>
+                    <div class="card border-0 shadow">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4 text-danger">
+                                <i class="fas fa-trash me-2"></i>Zona de Peligro
+                            </h5>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarCuenta">
+                                <i class="fas fa-trash me-2"></i>Eliminar mi cuenta
+                            </button>
+                            <p class="small text-muted mt-2">Esta acción no se puede deshacer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción General -->
+            <div class="mt-4 d-flex gap-2">
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Inicio
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-danger ms-auto">
+                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Editar Perfil -->
+<div class="modal fade" id="editarPerfil" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Editar Información
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarPerfil">
+                    <div class="mb-3">
+                        <label for="nombreEdit" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="nombreEdit" value="{{ usuario.nombre }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailEdit" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="emailEdit" value="{{ usuario.email }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambiosPerfil()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Eliminar Cuenta -->
+<div class="modal fade" id="eliminarCuenta" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Eliminar Cuenta
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-danger fw-semibold">⚠️ Esta acción es irreversible</p>
+                <p>Si eliminas tu cuenta:</p>
+                <ul>
+                    <li>Se perderán todos tus datos personales</li>
+                    <li>Se eliminarán todos tus reportes y Upload</li>
+                    <li>No podrás recuperar esta información</li>
+                </ul>
+                <p>Escribe tu email para confirmar: <span class="fw-semibold">{{ usuario.email }}</span></p>
+                <input type="text" class="form-control" placeholder="Confirma tu email">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger">Eliminar de forma permanente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0;
+        padding: 1.5rem;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Dark mode */
+    body.dark-mode .card {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    body.dark-mode .card-header {
+        background-color: #0284c7 !important;
+    }
+
+    body.dark-mode h6,
+    body.dark-mode p {
+        color: #cbd5e1;
+    }
+
+    body.dark-mode .h5 {
+        color: #f1f5f9;
+    }
+</style>
+
+<script>
+function guardarCambiosPerfil() {
+    const nombre = document.getElementById('nombreEdit').value.trim();
+    const email = document.getElementById('emailEdit').value.trim();
+    
+    // Validaciones
+    if (!nombre) {
+        alert('El nombre no puede estar vacío');
+        return;
+    }
+    
+    if (!email) {
+        alert('El email no puede estar vacío');
+        return;
+    }
+    
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Por favor ingresa un email válido');
+        return;
+    }
+    
+    // Enviar datos al servidor
+    fetch('{{ url_for("auth.actualizar_perfil") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            nombre: nombre,
+            email: email
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Actualizar la información en la página
+            document.querySelector('.profile-header h2').textContent = nombre;
+            document.querySelector('.profile-header p').textContent = email;
+            
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editarPerfil'));
+            modal.hide();
+            
+            // Mostrar mensaje de éxito
+            alert('¡Cambios guardados correctamente!');
+            
+            // Recargar la página después de 1 segundo
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar los cambios');
+    });
+}
+</script>
+{% endblock %}

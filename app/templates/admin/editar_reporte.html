@@ -1,0 +1,408 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #ffffff;
+        --admin-text: #1a1a1a;
+        --admin-text-muted: #555555;
+        --admin-border: #e0e0e0;
+        --admin-border-dark: #d0d0d0;
+        --admin-input-bg: #ffffff;
+        --admin-input-text: #1a1a1a;
+        --admin-input-border: #ccc;
+        --admin-shadow: rgba(0, 0, 0, 0.08);
+        --admin-shadow-hover: rgba(0, 0, 0, 0.12);
+        --admin-table-hover: rgba(102, 126, 234, 0.06);
+        --admin-badge-bg: rgba(102, 126, 234, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --admin-bg: #242630;
+            --admin-text: #f0f0f0;
+            --admin-text-muted: #b0b0b0;
+            --admin-border: #3a3f4f;
+            --admin-border-dark: #2a2f3f;
+            --admin-input-bg: #2a2f3f;
+            --admin-input-text: #f0f0f0;
+            --admin-input-border: #404050;
+            --admin-shadow: rgba(0, 0, 0, 0.3);
+            --admin-shadow-hover: rgba(0, 0, 0, 0.4);
+            --admin-table-hover: rgba(102, 126, 234, 0.12);
+            --admin-badge-bg: rgba(102, 126, 234, 0.15);
+        }
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 8px;
+    }
+
+    .form-card {
+        background: var(--admin-bg);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 8px var(--admin-shadow);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--admin-text);
+        margin-bottom: 8px;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid var(--admin-border);
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+    }
+
+    .btn-section {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .info-box {
+        background-color: rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        color: var(--admin-text);
+    }
+
+    .info-box i {
+        color: #667eea;
+        margin-right: 10px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        color: var(--admin-text);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-row strong {
+        color: var(--admin-text);
+    }
+
+    .info-row span {
+        color: var(--admin-text-muted);
+    }
+
+    .estado-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .estado-badge.pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ff9800;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .estado-badge.pending {
+            background-color: rgba(255, 193, 7, 0.3);
+            color: #ffb74d;
+        }
+    }
+
+    .estado-badge.approved {
+        background-color: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .estado-badge.approved {
+            background-color: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+        }
+    }
+
+    .estado-badge.rejected {
+        background-color: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .estado-badge.rejected {
+            background-color: rgba(244, 67, 54, 0.3);
+            color: #ef5350;
+        }
+    }
+
+    .data-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .data-item {
+        background-color: rgba(102, 126, 234, 0.1);
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 3px solid #667eea;
+        color: var(--admin-text);
+    }
+
+    .data-item-label {
+        font-size: 12px;
+        color: var(--admin-text-muted);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .data-item-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--admin-text);
+    }
+
+    .timeline {
+        font-size: 13px;
+        color: var(--admin-text-muted);
+        margin-top: 10px;
+    }
+
+    .text-muted {
+        color: var(--admin-text-muted) !important;
+    }
+
+    /* Estilos para botones en modo oscuro */
+    .btn {
+        color: inherit !important;
+    }
+
+    .btn-primary {
+        background-color: #667eea !important;
+        border-color: #667eea !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #5568d3 !important;
+        border-color: #5568d3 !important;
+        color: white !important;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: white !important;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268 !important;
+        border-color: #5a6268 !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #333 !important;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800 !important;
+        border-color: #e0a800 !important;
+        color: #333 !important;
+    }
+
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333 !important;
+        border-color: #c82333 !important;
+        color: white !important;
+    }
+
+    .btn-light {
+        background-color: #f8f9fa !important;
+        border-color: #f8f9fa !important;
+        color: #333 !important;
+    }
+
+    .btn-light:hover {
+        background-color: #e2e6ea !important;
+        border-color: #e2e6ea !important;
+        color: #333 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-file-edit fa-2x"></i>
+                <div>
+                    <h1 class="mb-0">Editar Reporte</h1>
+                    <p class="mb-0 mt-2">Modifica el estado del reporte: <strong>{{ reporte.wo }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card">
+        <!-- Información del reporte -->
+        <div class="info-box">
+            <i class="fas fa-file-alt"></i>
+            <div style="margin-top: 10px;">
+                <div class="info-row">
+                    <strong>ID del Reporte:</strong>
+                    <span>#{{ reporte.id }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>WO:</strong>
+                    <span>{{ reporte.wo }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Usuario Asignado:</strong>
+                    <span>{{ reporte.usuario_asignado }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Grupo:</strong>
+                    <span>{{ reporte.grupo }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Fecha de Reporte:</strong>
+                    <span>{{ reporte.fecha.strftime('%d/%m/%Y') }}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Cargado:</strong>
+                    <span>{{ reporte.fecha_carga.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos del Reporte -->
+        <div class="data-grid">
+            <div class="data-item">
+                <div class="data-item-label">Horas Aprobadas</div>
+                <div class="data-item-value">{{ reporte.horas_aprobadas }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-item-label">Horas Reales</div>
+                <div class="data-item-value">{{ reporte.horas_reales }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-item-label">Tipo de Reporte</div>
+                <div class="data-item-value">{{ reporte.tipo or 'N/A' }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-item-label">Estado Actual</div>
+                <div class="data-item-value">
+                    {% set status = reporte.status.lower() if reporte.status else 'default' %}
+                    {% if 'approved' in status %}
+                        <span class="estado-badge approved">{{ reporte.status }}</span>
+                    {% elif 'pending' in status %}
+                        <span class="estado-badge pending">{{ reporte.status }}</span>
+                    {% elif 'rejected' in status %}
+                        <span class="estado-badge rejected">{{ reporte.status }}</span>
+                    {% else %}
+                        <span class="estado-badge">{{ reporte.status or 'N/A' }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Edición -->
+        <form method="POST" action="{{ url_for('admin.editar_reporte', reporte_id=reporte.id) }}" style="margin-top: 30px;">
+            <!-- Estado -->
+            <div class="form-group">
+                <label for="status" class="form-label">
+                    <i class="fas fa-exclamation-circle me-2"></i>Nuevo Estado
+                </label>
+                <select class="form-select" id="status" name="status" required>
+                    <option value="">Selecciona un estado</option>
+                    <option value="Pending" {% if reporte.status == 'Pending' %}selected{% endif %}>
+                        ⏳ Pendiente
+                    </option>
+                    <option value="Approved" {% if reporte.status == 'Approved' %}selected{% endif %}>
+                        ✓ Aprobado
+                    </option>
+                    <option value="Rejected" {% if reporte.status == 'Rejected' %}selected{% endif %}>
+                        ✗ Rechazado
+                    </option>
+                </select>
+                <small class="text-muted d-block mt-2">
+                    Este cambio afectará los registros del reporte.
+                </small>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="btn-section">
+                <a href="{{ url_for('admin.reportes') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </div>
+        </form>
+
+        <!-- Nota de Auditoría -->
+        <div class="timeline" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
+            <small>
+                <i class="fas fa-clock me-2"></i>
+                Los cambios serán registrados en los logs del sistema para auditoría.
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Mostrar confirmación al cambiar estado
+    document.querySelector('select[name="status"]').addEventListener('change', function() {
+        const estados = {
+            'Pending': '⏳ Pendiente',
+            'Approved': '✓ Aprobado',
+            'Rejected': '✗ Rechazado'
+        };
+        console.log('Nuevo estado: ' + estados[this.value]);
+    });
+</script>
+{% endblock %}

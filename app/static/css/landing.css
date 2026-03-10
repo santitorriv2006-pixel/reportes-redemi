@@ -1,0 +1,567 @@
+/* ==========================================================================
+   LANDING PAGE — Earth-Toned Professional v1.0
+   Paleta: Tierra Refinada para aplicación de construcción e inventarios.
+
+   FILOSOFÍA DE COLOR:
+   ─ Warm Neutrals como base → fatiga visual reducida, sensación de materiales
+   ─ Verde Musgo Profundo como acento → piedra, acero tratado, vegetación premium
+   ─ Semántica deslavada → colores de estado que armonizan, no interrumpen
+   ─ Dark mode Carboncillo Cálido → sin negro puro, sin blue-shift
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ==========================================================================
+   §1  DESIGN TOKENS — Tierra Refinada
+   ========================================================================== */
+:root {
+    /* ── Acento principal — Verde Musgo / Forest Slate ──────────────────
+       Reemplaza el azul cobalt #3b82f6 y el violeta #8b5cf6.
+       Evoca: musgo en piedra calcárea, acero con pátina mineral,
+       planos técnicos de arquitectura. HSL ≈ 158°, 43%, 30%.
+       ────────────────────────────────────────────────────────────────── */
+    --primary:  #2C6E5B;    /* Verde pizarra bosque — CTA principal         */
+    --primary-hover: #215549;
+    --primary-light: #EBF4F1;
+    --primary-muted: #9EC4BA;
+
+    /* ── Secundario — Gris Arena (Warm Gray / Stone) ──────────────────── */
+    --secondary: #7A7068;   /* Arena oscura — texto de apoyo, subtítulos    */
+
+    /* ── Superficies cálidas ──────────────────────────────────────────── */
+    --light:    #F8F6F2;    /* Blanco arena — fondo principal (vs #F9FAFB)  */
+    --surface:  #FFFFFF;    /* Cards limpias                                 */
+    --raised:   #F0EDE7;    /* Crema claro — elementos elevados             */
+    --sunken:   #E8E4DE;    /* Áreas hundidas — inputs, inner containers    */
+
+    /* ── Negro cálido ─────────────────────────────────────────────────── */
+    --dark:     #1C1813;    /* Carbón con undertone marrón (vs #111827 frío) */
+
+    /* ── Acento secundario removido: violeta → ocre dorado ─────────────
+       El violeta #8b5cf6 rompe la armonía tierra.
+       Reemplazo: Ocre / Bronce para highlights y badges especiales.       */
+    --accent:   #8A6230;    /* Bronce dorado — detalles, highlights          */
+    --accent-light: #F5ECD8;
+
+    /* ── Semántica deslavada (Muted Semantics) ────────────────────────── */
+    --success:  #4E876C;    /* Salvia profundo — no verde neón              */
+    --success-bg: #EEF6F2;
+    --success-border: #B2D4C6;
+
+    --warning:  #A06C35;    /* Ocre dorado — no amarillo señal              */
+    --warning-bg: #FBF3E8;
+    --warning-border: #DEB992;
+
+    --danger:   #9C4040;    /* Ladrillo apagado — no rojo alarma            */
+    --danger-bg: #FAF0F0;
+    --danger-border: #DAB8B8;
+
+    --info:     #4A6E8A;    /* Azul pizarra — no azul corporativo           */
+    --info-bg:  #EEF3F8;
+    --info-border: #ACC4D8;
+
+    /* ── Texto ────────────────────────────────────────────────────────── */
+    --text-primary:   #1A1410;
+    --text-secondary: #6E6659;
+    --text-muted:     #9A9289;
+
+    /* ── Bordes ───────────────────────────────────────────────────────── */
+    --border-subtle:  #E5E0D8;
+    --border-default: #D8D2C8;
+    --border-medium:  #BFB8AE;
+
+    /* ── Sombras con undertone cálido (no blue-shift) ─────────────────── */
+    --shadow-sm:  0 1px 3px rgba(24, 18, 10, 0.07), 0 1px 2px rgba(24, 18, 10, 0.05);
+    --shadow-md:  0 4px 12px rgba(24, 18, 10, 0.08), 0 2px 4px rgba(24, 18, 10, 0.05);
+    --shadow-lg:  0 12px 32px rgba(24, 18, 10, 0.10), 0 4px 8px rgba(24, 18, 10, 0.06);
+    --shadow-focus: 0 0 0 3px rgba(44, 110, 91, 0.18);
+
+    /* ── Tipografía ───────────────────────────────────────────────────── */
+    --font-sans: 'Plus Jakarta Sans', 'Segoe UI', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+    /* ── Espaciado ────────────────────────────────────────────────────── */
+    --sp-2:  0.5rem;
+    --sp-3:  0.75rem;
+    --sp-4:  1rem;
+    --sp-5:  1.25rem;
+    --sp-6:  1.5rem;
+    --sp-8:  2rem;
+    --sp-10: 2.5rem;
+    --sp-12: 3rem;
+
+    /* ── Radios ───────────────────────────────────────────────────────── */
+    --r-sm:  4px;
+    --r-md:  8px;
+    --r-lg:  12px;
+    --r-xl:  16px;
+    --r-2xl: 24px;
+    --r-full: 9999px;
+
+    /* ── Transiciones ─────────────────────────────────────────────────── */
+    --ease-fast: 100ms ease;
+    --ease-base: 180ms ease;
+    --ease-slow: 280ms ease;
+}
+
+/* ==========================================================================
+   §2  MODO OSCURO — Carboncillo Cálido (Warm Charcoal)
+
+   Base desplazada ~25° hacia marrón en vez de negro frío.
+   Referencia visual: carbón vegetal, grafito sobre papel kraft,
+   pizarra húmeda. WCAG AA garantizado en todos los pares texto/fondo.
+   ========================================================================== */
+body.dark-mode {
+    --primary:       #52A88E;    /* Verde pizarra más luminoso — WCAG sobre oscuro */
+    --primary-hover: #6BBFA5;
+    --primary-light: #0E2420;
+    --primary-muted: #1E4038;
+
+    --secondary:     #9A9288;
+    --light:         #161310;    /* Carbón más profundo cálido                */
+    --surface:       #1E1A16;    /* Superficie cards — madera oscura          */
+    --raised:        #252118;    /* Elementos elevados                        */
+    --sunken:        #110E0C;    /* Inputs, áreas hundidas                    */
+    --dark:          #EDE8E2;    /* Texto — crema muy claro, no blanco puro   */
+
+    --accent:        #C09050;    /* Bronce luminoso sobre fondo oscuro        */
+    --accent-light:  #221500;
+
+    --success:       #52A07A;
+    --success-bg:    #0D1E16;
+    --success-border:#1A3A28;
+
+    --warning:       #C09050;
+    --warning-bg:    #221500;
+    --warning-border:#3A2800;
+
+    --danger:        #C06060;
+    --danger-bg:     #1E0C0C;
+    --danger-border: #3A1818;
+
+    --info:          #7090B0;
+    --info-bg:       #0C1820;
+    --info-border:   #1A2E42;
+
+    --text-primary:   #EDE8E2;
+    --text-secondary: #9A9288;
+    --text-muted:     #6A6258;
+
+    --border-subtle:  #23201C;
+    --border-default: #302C26;
+    --border-medium:  #453F38;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.30);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.40), 0 2px 4px rgba(0,0,0,0.25);
+    --shadow-lg:  0 12px 32px rgba(0,0,0,0.50), 0 4px 8px rgba(0,0,0,0.30);
+    --shadow-focus: 0 0 0 3px rgba(82, 168, 142, 0.22);
+}
+
+/* ==========================================================================
+   §3  RESET & BASE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--light);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+}
+
+::selection { background: var(--primary-light); color: var(--primary); }
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: var(--border-medium); border-radius: var(--r-full); }
+::-webkit-scrollbar-thumb:hover  { background: var(--text-muted); }
+
+/* ==========================================================================
+   §4  CONTENEDOR
+   ========================================================================== */
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 var(--sp-6);
+}
+
+/* ==========================================================================
+   §5  BOTONES — sin gradientes, formas limpias
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-2);
+    padding: 0.7rem 1.5rem;
+    border-radius: var(--r-md);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all var(--ease-fast);
+    white-space: nowrap;
+}
+
+/* Primario — Verde Musgo sólido */
+.btn-primary {
+    background-color: var(--primary);
+    color: #FFFFFF;
+    border-color: var(--primary);
+    box-shadow: 0 1px 3px rgba(44, 110, 91, 0.25);
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(44, 110, 91, 0.28);
+}
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Secundario — superficie cálida con borde */
+.btn-secondary {
+    background-color: rgba(255, 255, 255, 0.85);
+    color: var(--primary);
+    border-color: var(--primary-muted);
+    backdrop-filter: blur(8px);
+}
+.btn-secondary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+/* Dark mode botones */
+body.dark-mode .btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(82, 168, 142, 0.3);
+}
+body.dark-mode .btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    box-shadow: 0 4px 12px rgba(82, 168, 142, 0.25);
+}
+body.dark-mode .btn-secondary {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--primary);
+    border-color: var(--primary-muted);
+}
+body.dark-mode .btn-secondary:hover {
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+}
+
+/* ==========================================================================
+   §6  HERO — Fondo tierra oscura, sin gradiente genérico
+   ========================================================================== */
+.hero {
+    min-height: 88vh;
+    background-color: var(--dark);
+    background-image:
+        /* Textura de grano sutil — simula papel kraft grueso */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+        /* Radial cálido desde abajo a la izquierda — luz en habitación oscura */
+        radial-gradient(ellipse 80% 60% at 15% 90%, rgba(44, 110, 91, 0.14) 0%, transparent 65%),
+        /* Toque de bronce desde arriba a la derecha */
+        radial-gradient(ellipse 60% 50% at 85% 10%, rgba(138, 98, 48, 0.10) 0%, transparent 60%);
+    color: #EDE8E2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--sp-12) var(--sp-8);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Grid de puntos — como papel milimetrado de arquitecto */
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+        circle,
+        rgba(240, 237, 231, 0.06) 1px,
+        transparent 1px
+    );
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Línea de horizonte sutil — divide hero de contenido */
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(44, 110, 91, 0.3) 30%,
+        rgba(44, 110, 91, 0.3) 70%,
+        transparent 100%
+    );
+}
+
+.hero > * { position: relative; z-index: 1; }
+
+.hero h1 {
+    font-family: var(--font-sans);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: #EDE8E2;
+    letter-spacing: -0.04em;
+    line-height: 1.12;
+    margin-bottom: var(--sp-5);
+    max-width: 760px;
+    margin-inline: auto;
+}
+
+/* Acento verde en texto del hero */
+.hero h1 span,
+.hero h1 em {
+    color: var(--primary);
+    font-style: normal;
+}
+
+.hero p {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    color: rgba(237, 232, 226, 0.65);
+    margin-bottom: var(--sp-8);
+    max-width: 540px;
+    margin-inline: auto;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+.button-group {
+    display: flex;
+    gap: var(--sp-3);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Dark mode hero */
+body.dark-mode .hero {
+    background-color: #0C0A08;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 80% 60% at 15% 90%, rgba(82, 168, 142, 0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 85% 10%, rgba(192, 144, 80, 0.07) 0%, transparent 60%);
+}
+body.dark-mode .hero h1  { color: var(--dark); }
+body.dark-mode .hero p   { color: rgba(237, 232, 226, 0.55); }
+
+/* ==========================================================================
+   §7  FEATURES — Cards sobre fondo crema caliente
+   ========================================================================== */
+.features {
+    padding: var(--sp-12) var(--sp-8);
+    background-color: var(--light);
+    /* Gradiente muy sutil: crema → blanco puro */
+    background-image: linear-gradient(180deg, var(--raised) 0%, var(--surface) 40%);
+}
+
+.features .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+    gap: var(--sp-5);
+}
+
+.feature {
+    text-align: left;             /* Izquierda es más profesional que centrado */
+    padding: var(--sp-6);
+    background: var(--surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--ease-base);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Borde de acento superior sutil — como las stat cards */
+.feature::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--sp-6);
+    right: var(--sp-6);
+    height: 2px;
+    background: var(--border-subtle);
+    border-radius: 0 0 var(--r-sm) var(--r-sm);
+    transition: background var(--ease-base);
+}
+
+.feature:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-medium);
+}
+.feature:hover::before {
+    background: var(--primary);
+}
+
+/* Ícono — fondo tenue tierra, color verde musgo */
+.feature i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-radius: var(--r-md);
+    font-size: 1.1rem;
+    margin-bottom: var(--sp-4);
+    transition: background var(--ease-base);
+    /* SIN gradiente — ícono plano profesional */
+}
+.feature:hover i {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+.feature h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--sp-2);
+    letter-spacing: -0.02em;
+}
+
+.feature p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* Dark mode features */
+body.dark-mode .features {
+    background-color: var(--light);
+    background-image: linear-gradient(180deg, #0C0A08 0%, var(--surface) 40%);
+}
+body.dark-mode .feature {
+    background: var(--surface);
+    border-color: var(--border-default);
+    box-shadow: var(--shadow-sm);
+}
+body.dark-mode .feature:hover {
+    border-color: var(--border-medium);
+    box-shadow: var(--shadow-lg);
+}
+body.dark-mode .feature::before { background: var(--border-subtle); }
+body.dark-mode .feature:hover::before { background: var(--primary); }
+body.dark-mode .feature i {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+body.dark-mode .feature:hover i {
+    background-color: var(--primary);
+    color: #fff;
+}
+body.dark-mode .feature h3 { color: var(--text-primary); }
+body.dark-mode .feature p  { color: var(--text-secondary); }
+
+/* ==========================================================================
+   §8  RESPONSIVO
+   ========================================================================== */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 75vh;
+        padding: var(--sp-10) var(--sp-5);
+    }
+    .hero h1 { font-size: 2rem; }
+    .hero p  { font-size: 0.9375rem; }
+    .button-group {
+        flex-direction: column;
+        align-items: center;
+    }
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    .features {
+        padding: var(--sp-10) var(--sp-4);
+    }
+    .features .container {
+        grid-template-columns: 1fr;
+    }
+    .feature {
+        text-align: center;
+        padding: var(--sp-5);
+    }
+    .feature i { margin-inline: auto; }
+}
+
+@media (max-width: 480px) {
+    .container { padding: 0 var(--sp-4); }
+    .hero h1   { font-size: 1.75rem; letter-spacing: -0.03em; }
+}
+
+/* ==========================================================================
+   §9  PRINT
+   ========================================================================== */
+@media print {
+    .hero, .features { padding-block: var(--sp-6); }
+    .feature         { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+    .btn             { display: none; }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
+    }
+
+    .button-group {
+        gap: 1rem;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .features {
+        padding: 4rem 2rem;
+    }
+
+    .features .container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .feature {
+        padding: 2rem;
+    }
+
+    .feature i {
+        font-size: 2.5rem;
+    }
+
+    .feature h3 {
+        font-size: 1.2rem;
+    }
+}
