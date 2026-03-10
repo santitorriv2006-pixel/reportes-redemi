@@ -18,7 +18,7 @@ logger = setup_logging()
 # Crear aplicación
 app = create_app()
 
-# 👇 CREAR BASE DE DATOS SI NO EXISTE
+# 🔹 Crear base de datos automáticamente
 with app.app_context():
     db.create_all()
 
