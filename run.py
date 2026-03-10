@@ -15,25 +15,25 @@ load_dotenv()
 # Configurar logging
 logger = setup_logging()
 
+# 👇 ESTA LÍNEA ES LA IMPORTANTE
+app = create_app()
+
+
 def main():
     """Función principal"""
-    
-    # Crear aplicación
-    app = create_app()
-    
+
     # Obtener configuración
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', 5000))
     debug = os.getenv('FLASK_ENV', 'development') == 'development'
-    
+
     logger.info(f"Iniciando aplicación en {host}:{port}")
     logger.info(f"Modo debug: {debug}")
-    
+
     # Crear directorios necesarios
     os.makedirs('uploads', exist_ok=True)
     os.makedirs('logs', exist_ok=True)
-    
-    # Ejecutar aplicación
+
     try:
         app.run(host=host, port=port, debug=debug)
     except KeyboardInterrupt:
