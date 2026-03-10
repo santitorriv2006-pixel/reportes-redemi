@@ -15,8 +15,12 @@ load_dotenv()
 # Configurar logging
 logger = setup_logging()
 
-# 👇 ESTA LÍNEA ES LA IMPORTANTE
+# Crear aplicación
 app = create_app()
+
+# 👇 CREAR BASE DE DATOS SI NO EXISTE
+with app.app_context():
+    db.create_all()
 
 
 def main():
