@@ -11,7 +11,7 @@ from app.models import Reporte
 def cargar_reportes_reales():
     """Carga reportes desde el archivo Reportes_Convertidos.xlsx"""
     
-    archivo = 'archivos/Reportes_Convertidos.xlsx'
+    archivo = 'epm.xlsx'
     
     try:
         # Leer el archivo

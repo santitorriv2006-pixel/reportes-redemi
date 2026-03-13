@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime
 import os
 
-archivo_original = r'archivos/EPM - Solicitudes, Incidentes y Tareas Preview (32).xlsx'
+archivo_original = r'archivos/epm.xlsx'
 archivo_salida = r'archivos/Reportes_Convertidos.xlsx'
 
 print("╔════════════════════════════════════════════════════════╗")

@@ -9,7 +9,7 @@ from datetime import datetime
 import openpyxl
 
 # Archivo original
-archivo_original = r'archivos/EPM - Solicitudes, Incidentes y Tareas Preview (32).xlsx'
+archivo_original = r'archivos/epm.xlsx'
 
 # Leer todas las hojas
 excel_file = pd.ExcelFile(archivo_original)

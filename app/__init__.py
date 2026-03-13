@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from config import config_by_name
 import os
 
@@ -29,7 +29,18 @@ def create_app(config_name=None):
     @login_manager.user_loader
     def load_user(user_id):
         from app.models import Usuario
-        return Usuario.query.get(int(user_id))
+        # Expirar cache antes de cargar - esto fuerza recarga desde BD
+        db.session.expire_all()
+        user = Usuario.query.get(int(user_id))
+        return user
+    
+    # Invalidar sesión SQLAlchemy antes de cada request
+    @app.before_request
+    def clear_sqlalchemy_cache():
+        """Limpiar caché de SQLAlchemy para evitar datos antiguos"""
+        if current_user.is_authenticated:
+            # Expulsar TODOS los objetos en caché
+            db.session.expunge_all()
     
     # Importar servicios DESPUÉS de db
     from app.services import EmailService

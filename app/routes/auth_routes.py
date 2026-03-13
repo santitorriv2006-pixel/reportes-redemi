@@ -230,7 +230,20 @@ def logout():
 @login_required
 def perfil():
     """Página del perfil del usuario"""
-    return render_template('auth/perfil.html', usuario=current_user)
+    # Limpiar caché de SQLAlchemy completamente
+    db.session.expunge_all()
+    db.session.close()
+    
+    # Cargar usuario FRESH sin caché - query nueva
+    usuario = Usuario.query.filter_by(id=current_user.id).first()
+    if not usuario:
+        logout_user()
+        return redirect(url_for('auth.login'))
+    
+    # Debug: mostrar en logs qué rol tiene
+    logger_db.info(f"Perfil accedido por {usuario.email}, rol={usuario.rol}")
+    
+    return render_template('auth/perfil.html', usuario=usuario)
 
 @auth_bp.route('/actualizar-perfil', methods=['POST'])
 @login_required
