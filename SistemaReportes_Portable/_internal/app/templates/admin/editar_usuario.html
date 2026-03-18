@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #ffffff;
+        --admin-text: #1a1a1a;
+        --admin-text-muted: #555555;
+        --admin-border: #e0e0e0;
+        --admin-border-dark: #d0d0d0;
+        --admin-input-bg: #ffffff;
+        --admin-input-text: #1a1a1a;
+        --admin-input-border: #ccc;
+        --admin-shadow: rgba(0, 0, 0, 0.08);
+        --admin-shadow-hover: rgba(0, 0, 0, 0.12);
+        --admin-table-hover: rgba(102, 126, 234, 0.06);
+        --admin-badge-bg: rgba(102, 126, 234, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --admin-bg: #242630;
+            --admin-text: #f0f0f0;
+            --admin-text-muted: #b0b0b0;
+            --admin-border: #3a3f4f;
+            --admin-border-dark: #2a2f3f;
+            --admin-input-bg: #2a2f3f;
+            --admin-input-text: #f0f0f0;
+            --admin-input-border: #404050;
+            --admin-shadow: rgba(0, 0, 0, 0.3);
+            --admin-shadow-hover: rgba(0, 0, 0, 0.4);
+            --admin-table-hover: rgba(102, 126, 234, 0.12);
+            --admin-badge-bg: rgba(102, 126, 234, 0.15);
+        }
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 8px;
+    }
+
+    .form-card {
+        background: var(--admin-bg);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 8px var(--admin-shadow);
+        border: 1px solid var(--admin-border);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--admin-text);
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border: 1px solid var(--admin-input-border);
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: var(--admin-input-bg);
+        color: var(--admin-input-text);
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: var(--admin-input-bg);
+        color: var(--admin-input-text);
+    }
+
+    .form-select {
+        border: 1px solid var(--admin-input-border);
+        border-radius: 6px;
+        padding: 10px 15px;
+        font-size: 14px;
+        background-color: var(--admin-input-bg);
+        color: var(--admin-input-text);
+    }
+
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: var(--admin-input-bg);
+        color: var(--admin-input-text);
+    }
+
+    .btn-section {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .info-box {
+        background-color: rgba(102, 126, 234, 0.1);
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        color: var(--admin-text);
+    }
+
+    .info-box i {
+        color: #667eea;
+        margin-right: 10px;
+    }
+
+    .status-toggle {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #667eea;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+    .text-muted {
+        color: var(--admin-text-muted) !important;
+    }
+
+    /* Estilos para botones en modo oscuro */
+    .btn {
+        color: inherit !important;
+    }
+
+    .btn-primary {
+        background-color: #667eea !important;
+        border-color: #667eea !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #5568d3 !important;
+        border-color: #5568d3 !important;
+        color: white !important;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: white !important;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268 !important;
+        border-color: #5a6268 !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+        color: #333 !important;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800 !important;
+        border-color: #e0a800 !important;
+        color: #333 !important;
+    }
+
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333 !important;
+        border-color: #c82333 !important;
+        color: white !important;
+    }
+
+    .btn-light {
+        background-color: #f8f9fa !important;
+        border-color: #f8f9fa !important;
+        color: #333 !important;
+    }
+
+    .btn-light:hover {
+        background-color: #e2e6ea !important;
+        border-color: #e2e6ea !important;
+        color: #333 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="form-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-user-edit fa-2x"></i>
+                <div>
+                    <h1 class="mb-0">Editar Usuario</h1>
+                    <p class="mb-0 mt-2">Modifica la información del usuario: <strong>{{ usuario.email }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-card">
+        <!-- Información del usuario -->
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <strong>ID del usuario:</strong> #{{ usuario.id }}<br>
+            <strong>Correo registrado:</strong> {{ usuario.email }}<br>
+            <strong>Registrado:</strong> {{ usuario.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.editar_usuario', usuario_id=usuario.id) }}">
+            <!-- Nombre -->
+            <div class="form-group">
+                <label for="nombre" class="form-label">
+                    <i class="fas fa-user me-2"></i>Nombre
+                </label>
+                <input type="text" class="form-control" id="nombre" name="nombre" 
+                       value="{{ usuario.nombre }}" required>
+                <small class="text-muted">El nombre asociado a la cuenta</small>
+            </div>
+
+            <!-- Rol -->
+            <div class="form-group">
+                <label for="rol" class="form-label">
+                    <i class="fas fa-shield-alt me-2"></i>Rol
+                </label>
+                <select class="form-control" id="rol" name="rol" required>
+                    <option value="usuario" {% if usuario.rol == 'usuario' %}selected{% endif %}>
+                        Usuario Regular
+                    </option>
+                    <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>
+                        Administrador
+                    </option>
+                </select>
+                <small class="text-muted">Asigna permisos al usuario</small>
+            </div>
+
+            <!-- Estado -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-toggle-on me-2"></i>Estado
+                </label>
+                <div class="status-toggle">
+                    <label class="switch">
+                        <input type="checkbox" name="activo" {% if usuario.activo %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                    <span>
+                        {% if usuario.activo %}
+                            <span class="badge bg-success">ACTIVO</span>
+                        {% else %}
+                            <span class="badge bg-danger">INACTIVO</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <small class="text-muted d-block mt-2">El usuario {% if usuario.activo %}puede{% else %}no puede{% endif %} acceder al sistema</small>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="btn-section">
+                <a href="{{ url_for('admin.usuarios') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Actualizar el badge cuando se cambia el estado
+    document.querySelector('input[name="activo"]').addEventListener('change', function() {
+        const badge = document.querySelector('.badge');
+        if (this.checked) {
+            badge.textContent = 'ACTIVO';
+            badge.classList.remove('bg-danger');
+            badge.classList.add('bg-success');
+        } else {
+            badge.textContent = 'INACTIVO';
+            badge.classList.remove('bg-success');
+            badge.classList.add('bg-danger');
+        }
+    });
+</script>
+{% endblock %}

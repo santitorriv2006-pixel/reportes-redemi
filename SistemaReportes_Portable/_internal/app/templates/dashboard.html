@@ -1,0 +1,529 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <!-- Selector de Modo -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="modoView" id="modoGlobal" value="global" checked>
+                <label class="btn btn-outline-primary" for="modoGlobal">
+                    <i class="fas fa-globe"></i> Vista Global
+                </label>
+
+                <input type="radio" class="btn-check" name="modoView" id="modoUsuario" value="usuario">
+                <label class="btn btn-outline-primary" for="modoUsuario">
+                    <i class="fas fa-user"></i> Vista Usuario
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Global y Modo Usuario -->
+    <div id="filtrosGlobal" class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Filtros</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select id="tipoSelect" class="form-select" onchange="cargarDashboardGlobal()">
+                        <option value="">Todos los tipos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Grupo</label>
+                    <select id="grupoSelect" class="form-select" onchange="cargarDashboardGlobal()">
+                        <option value="">Todos los grupos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select id="estadoSelect" class="form-select" onchange="cargarDashboardGlobal()">
+                        <option value="">Todos los estados</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" id="dashFechaInicio" class="form-control" onchange="cargarDashboardGlobal()">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" id="dashFechaFin" class="form-control" onchange="cargarDashboardGlobal()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Modo Usuario -->
+    <div id="filtrosUsuario" class="card mb-4" style="display: none;">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Filtros</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="form-label">Selecciona Usuario</label>
+                    <select id="usuarioSelect" class="form-select">
+                        <option value="">Selecciona un usuario...</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select id="usuarioTipoSelect" class="form-select">
+                        <option value="">Todos los tipos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Grupo</label>
+                    <select id="usuarioGrupoSelect" class="form-select">
+                        <option value="">Todos los grupos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Estado</label>
+                    <select id="usuarioEstadoSelect" class="form-select">
+                        <option value="">Todos los estados</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Inicio</label>
+                    <input type="date" id="dashFechaInicio" class="form-control">
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label">Fin</label>
+                    <input type="date" id="dashFechaFin" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="cargarDashboardUsuario()">
+                        <i class="fas fa-search"></i> Cargar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row" id="graficosContainer">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Horas por Mes</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartHorasMes"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Horas por Grupo</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartHorasGrupo"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0" id="titleComparacion">Comparación Horas</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartComparacion"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4" id="topUsuariosContainer" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Top 10 Usuarios</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartTopUsuarios"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatearNumero(numero, decimales = 2) {
+    const factor = Math.pow(10, decimales);
+    const rounded = Math.round(numero * factor) / factor;
+    const formatted = rounded.toFixed(decimales);
+    
+    // Separar enteros de decimales
+    const [parteEntera, parteDecimal] = formatted.split('.');
+    
+    // Agregar puntos cada 3 dígitos en la parte entera
+    const conMiles = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    // No mostrar decimales si son .00
+    if (parteDecimal === '00') {
+        return conMiles;
+    }
+    
+    // Retornar con coma como separador decimal
+    return `${conMiles},${parteDecimal}`;
+}
+
+let chartHorasMes = null;
+let chartHorasGrupo = null;
+let chartComparacion = null;
+let chartTopUsuarios = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    cargarFiltros();
+    cargarDashboardGlobal();
+
+    // Event listeners
+    document.getElementById('modoGlobal').addEventListener('change', function() {
+        if (this.checked) {
+            document.getElementById('filtrosGlobal').style.display = 'block';
+            document.getElementById('filtrosUsuario').style.display = 'none';
+            document.getElementById('topUsuariosContainer').style.display = 'block';
+            document.getElementById('titleComparacion').textContent = 'Comparación Horas Global';
+            cargarDashboardGlobal();
+        }
+    });
+
+    document.getElementById('modoUsuario').addEventListener('change', function() {
+        if (this.checked) {
+            document.getElementById('filtrosGlobal').style.display = 'none';
+            document.getElementById('filtrosUsuario').style.display = 'block';
+            document.getElementById('topUsuariosContainer').style.display = 'none';
+            document.getElementById('titleComparacion').textContent = 'Comparación Horas Usuario';
+        }
+    });
+});
+
+function cargarFiltros() {
+    fetch('/filtros-combinados')
+    .then(response => response.json())
+    .then(data => {
+        // Cargar usuarios
+        if (data.usuarios) {
+            const usuarioSelect = document.getElementById('usuarioSelect');
+            data.usuarios.forEach(usuario => {
+                const option = document.createElement('option');
+                option.value = usuario;
+                option.textContent = usuario;
+                usuarioSelect.appendChild(option);
+            });
+        }
+
+        // Cargar grupos
+        if (data.grupos) {
+            const grupoSelect = document.getElementById('grupoSelect');
+            const usuarioGrupoSelect = document.getElementById('usuarioGrupoSelect');
+            
+            data.grupos.forEach(grupo => {
+                // Global
+                const option1 = document.createElement('option');
+                option1.value = grupo;
+                option1.textContent = grupo;
+                grupoSelect.appendChild(option1);
+                
+                // Usuario
+                const option2 = document.createElement('option');
+                option2.value = grupo;
+                option2.textContent = grupo;
+                usuarioGrupoSelect.appendChild(option2);
+            });
+        }
+
+        // Cargar estados
+        if (data.status) {
+            const estadoSelect = document.getElementById('estadoSelect');
+            const usuarioEstadoSelect = document.getElementById('usuarioEstadoSelect');
+            
+            data.status.forEach(estado => {
+                // Global
+                const option1 = document.createElement('option');
+                option1.value = estado;
+                option1.textContent = estado;
+                estadoSelect.appendChild(option1);
+                
+                // Usuario
+                const option2 = document.createElement('option');
+                option2.value = estado;
+                option2.textContent = estado;
+                usuarioEstadoSelect.appendChild(option2);
+            });
+        }
+
+        // Cargar tipos
+        if (data.tipos) {
+            const tipoSelect = document.getElementById('tipoSelect');
+            const usuarioTipoSelect = document.getElementById('usuarioTipoSelect');
+            
+            data.tipos.forEach(tipo => {
+                // Global
+                const option1 = document.createElement('option');
+                option1.value = tipo;
+                option1.textContent = tipo;
+                tipoSelect.appendChild(option1);
+                
+                // Usuario
+                const option2 = document.createElement('option');
+                option2.value = tipo;
+                option2.textContent = tipo;
+                usuarioTipoSelect.appendChild(option2);
+            });
+        }
+    })
+    .catch(error => console.error('Error cargando filtros:', error));
+}
+
+function cargarUsuarios() {
+    fetch('/usuarios')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const select = document.getElementById('usuarioSelect');
+            data.usuarios.forEach(usuario => {
+                const option = document.createElement('option');
+                option.value = usuario;
+                option.textContent = usuario;
+                select.appendChild(option);
+            });
+        }
+    });
+}
+
+function cargarDashboardGlobal() {
+    const params = new URLSearchParams();
+    
+    const tipo = document.getElementById('tipoSelect')?.value;
+    if (tipo) params.append('tipo', tipo);
+    
+    const grupo = document.getElementById('grupoSelect')?.value;
+    if (grupo) params.append('grupo', grupo);
+    
+    const estado = document.getElementById('estadoSelect')?.value;
+    if (estado) params.append('status', estado);
+    
+    const fechaInicio = document.getElementById('dashFechaInicio')?.value;
+    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('dashFechaFin')?.value;
+    if (fechaFin) params.append('fecha_fin', fechaFin);
+
+    fetch('/api/dashboard/global?' + params)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            dibujarGraficos(data.data);
+        } else {
+            console.error('Error en respuesta:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error cargando dashboard global:', error);
+    });
+}
+
+function cargarDashboardUsuario() {
+    const usuario = document.getElementById('usuarioSelect').value;
+    if (!usuario) {
+        alert('Selecciona un usuario');
+        return;
+    }
+
+    const params = new URLSearchParams();
+    params.append('usuario', usuario);
+    
+    const tipo = document.getElementById('usuarioTipoSelect')?.value;
+    if (tipo) params.append('tipo', tipo);
+    
+    const grupo = document.getElementById('usuarioGrupoSelect')?.value;
+    if (grupo) params.append('grupo', grupo);
+    
+    const estado = document.getElementById('usuarioEstadoSelect')?.value;
+    if (estado) params.append('status', estado);
+    
+    const fechaInicio = document.getElementById('dashFechaInicio')?.value;
+    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+    
+    const fechaFin = document.getElementById('dashFechaFin')?.value;
+    if (fechaFin) params.append('fecha_fin', fechaFin);
+
+    fetch(`/api/dashboard/usuario/${encodeURIComponent(usuario)}?` + params)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            dibujarGraficos(data.data, true);
+        } else {
+            console.error('Error en respuesta:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error cargando dashboard usuario:', error);
+    });
+}
+
+function dibujarGraficos(datos, esUsuario = false) {
+    // Validar que tengamos datos
+    if (!datos) {
+        console.error('No hay datos para dibujar gráficos');
+        return;
+    }
+    
+    // Gráfico de horas por mes
+    if (chartHorasMes) chartHorasMes.destroy();
+    
+    const ctxMes = document.getElementById('chartHorasMes').getContext('2d');
+    chartHorasMes = new Chart(ctxMes, {
+        type: 'line',
+        data: {
+            labels: (datos.horas_por_mes || []).map(d => d.mes),
+            datasets: [
+                {
+                    label: 'Horas Aprobadas',
+                    data: (datos.horas_por_mes || []).map(d => d.aprobadas),
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Horas Reales',
+                    data: (datos.horas_por_mes || []).map(d => d.reales),
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { 
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de horas por grupo
+    if (chartHorasGrupo) chartHorasGrupo.destroy();
+    
+    const ctxGrupo = document.getElementById('chartHorasGrupo').getContext('2d');
+    chartHorasGrupo = new Chart(ctxGrupo, {
+        type: 'bar',
+        data: {
+            labels: (datos.horas_por_grupo || []).map(d => d.grupo.substring(0, 30)),
+            datasets: [
+                {
+                    label: 'Horas Aprobadas',
+                    data: (datos.horas_por_grupo || []).map(d => d.aprobadas),
+                    backgroundColor: '#28a745'
+                },
+                {
+                    label: 'Horas Reales',
+                    data: (datos.horas_por_grupo || []).map(d => d.reales),
+                    backgroundColor: '#dc3545'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            indexAxis: 'y',
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+
+    // Gráfico de comparación
+    if (chartComparacion) chartComparacion.destroy();
+    
+    const ctxComp = document.getElementById('chartComparacion').getContext('2d');
+    const comparacion = datos.comparacion_horas || { aprobadas: 0, reales: 0 };
+    
+    chartComparacion = new Chart(ctxComp, {
+        type: 'doughnut',
+        data: {
+            labels: ['Horas Aprobadas', 'Horas Reales'],
+            datasets: [{
+                data: [comparacion.aprobadas, comparacion.reales],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { 
+                legend: { position: 'top' }
+            }
+        }
+    });
+
+    // Gráfico de top usuarios (solo en modo global)
+    if (!esUsuario && datos.top_usuarios && datos.top_usuarios.length > 0) {
+        if (chartTopUsuarios) chartTopUsuarios.destroy();
+        
+        const ctxTop = document.getElementById('chartTopUsuarios').getContext('2d');
+        chartTopUsuarios = new Chart(ctxTop, {
+            type: 'bar',
+            data: {
+                labels: (datos.top_usuarios || []).map(d => d.usuario.substring(0, 20)),
+                datasets: [{
+                    label: 'Horas Aprobadas',
+                    data: (datos.top_usuarios || []).map(d => d.aprobadas),
+                    backgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

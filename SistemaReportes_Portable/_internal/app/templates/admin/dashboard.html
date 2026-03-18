@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --admin-bg: #ffffff;
+        --admin-text: #333333;
+        --admin-text-muted: #666666;
+        --admin-border: #e0e0e0;
+        --admin-shadow: rgba(0, 0, 0, 0.08);
+        --admin-shadow-hover: rgba(0, 0, 0, 0.12);
+        --admin-table-hover: rgba(44, 110, 91, 0.05);
+        --admin-input-bg: #ffffff;
+        --admin-input-border: #d0d0d0;
+    }
+
+    /* Modo Oscuro */
+    body.dark-mode {
+        --admin-bg: #1E1A16;
+        --admin-text: #EDE8E2;
+        --admin-text-muted: #9A9288;
+        --admin-border: #302C26;
+        --admin-shadow: rgba(0, 0, 0, 0.3);
+        --admin-shadow-hover: rgba(0, 0, 0, 0.4);
+        --admin-table-hover: rgba(44, 110, 91, 0.15);
+        --admin-input-bg: #302C26;
+        --admin-input-border: #453F38;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, #2C6E5B 0%, #215549 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        border-radius: 8px;
+    }
+
+    .stat-card {
+        background: var(--admin-bg);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px var(--admin-shadow);
+        border-left: 4px solid #2C6E5B;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--admin-border);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px var(--admin-shadow-hover);
+    }
+
+    .stat-number {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2C6E5B;
+    }
+
+    .stat-label {
+        color: var(--admin-text-muted);
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .admin-section {
+        background: var(--admin-bg);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px var(--admin-shadow);
+        border: 1px solid var(--admin-border);
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: var(--admin-text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        color: #2C6E5B;
+    }
+
+    .table-responsive {
+        margin-top: 15px;
+    }
+
+    .admin-section .table {
+        color: var(--admin-text);
+        border-color: var(--admin-border);
+    }
+
+    .admin-section .table thead {
+        background-color: rgba(44, 110, 91, 0.12);
+        color: var(--admin-text);
+        border-color: var(--admin-border);
+    }
+
+    .admin-section .table thead th {
+        border-color: var(--admin-border);
+    }
+
+    .admin-section .table tbody tr {
+        border-bottom-color: var(--admin-border);
+    }
+
+    .admin-section .table tbody tr:hover {
+        background-color: var(--admin-table-hover);
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-admin {
+        padding: 8px 12px;
+        font-size: 13px;
+        gap: 5px;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .nav-admin {
+        background: var(--admin-bg);
+        color: var(--admin-text);
+        border-radius: 8px;
+        padding: 0;
+        box-shadow: 0 2px 8px var(--admin-shadow);
+        margin-bottom: 20px;
+        border-left: 4px solid #2C6E5B;
+        border: 1px solid var(--admin-border);
+    }
+
+    .nav-admin .nav-link {
+        color: var(--admin-text);
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--admin-border);
+        transition: all 0.3s ease;
+    }
+
+    .nav-admin .nav-link:hover {
+        background-color: rgba(44, 110, 91, 0.1);
+        color: #2C6E5B;
+    }
+
+    .nav-admin .nav-link.active {
+        color: #2C6E5B;
+        background-color: rgba(44, 110, 91, 0.1);
+        border-bottom-color: #2C6E5B;
+    }
+
+    .nav-admin .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .estado-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .estado-badge.pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #ff9800;
+    }
+
+    body.dark-mode .estado-badge.pending {
+        background-color: rgba(255, 193, 7, 0.3);
+        color: #ffb74d;
+    }
+
+    .estado-badge.approved {
+        background-color: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+    }
+
+    body.dark-mode .estado-badge.approved {
+        background-color: rgba(76, 175, 80, 0.3);
+        color: #81c784;
+    }
+
+    .estado-badge.rejected {
+        background-color: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+    }
+
+    body.dark-mode .estado-badge.rejected {
+        background-color: rgba(244, 67, 54, 0.3);
+        color: #ef5350;
+    }
+
+    .search-section {
+        background: var(--admin-bg);
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .search-section .form-control {
+        background-color: var(--admin-input-bg);
+        border-color: var(--admin-input-border);
+        color: var(--admin-text);
+    }
+
+    .search-section .form-control::placeholder {
+        color: var(--admin-text-muted);
+    }
+
+    .search-section .form-control:focus {
+        background-color: var(--admin-input-bg);
+        border-color: #2C6E5B;
+        color: var(--admin-text);
+        box-shadow: 0 0 0 0.2rem rgba(44, 110, 91, 0.25);
+    }
+
+    .info-box {
+        background-color: rgba(44, 110, 91, 0.1);
+        border-left: 4px solid #2C6E5B;
+        color: var(--admin-text);
+        border-radius: 4px;
+        padding: 12px;
+        border: 1px solid var(--admin-border);
+    }
+
+    .text-muted {
+        color: var(--admin-text-muted) !important;
+    }
+
+    /* Estilos para formularios */
+    .form-label {
+        color: var(--admin-text);
+        font-weight: 500;
+    }
+
+    .form-control,
+    .form-select {
+        background-color: var(--admin-input-bg);
+        border-color: var(--admin-input-border);
+        color: var(--admin-text);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--admin-input-bg);
+        border-color: #2C6E5B;
+        color: var(--admin-text);
+        box-shadow: 0 0 0 0.2rem rgba(44, 110, 91, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: var(--admin-text-muted);
+    }
+
+    /* Estilos para botones */
+    .btn {
+        color: inherit !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: #2C6E5B !important;
+        border-color: #2C6E5B !important;
+        color: white !important;
+    }
+
+    .btn-primary:hover {
+        background-color: #215549 !important;
+        border-color: #215549 !important;
+        color: white !important;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d !important;
+        border-color: #6c757d !important;
+        color: white !important;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268 !important;
+        border-color: #5a6268 !important;
+        color: white !important;
+    }
+
+    .btn-warning {
+        background-color: #A06C35 !important;
+        border-color: #A06C35 !important;
+        color: white !important;
+    }
+
+    .btn-warning:hover {
+        background-color: #8A5A2A !important;
+        border-color: #8A5A2A !important;
+        color: white !important;
+    }
+
+    .btn-danger {
+        background-color: #9C4040 !important;
+        border-color: #9C4040 !important;
+        color: white !important;
+    }
+
+    .btn-danger:hover {
+        background-color: #7A3030 !important;
+        border-color: #7A3030 !important;
+        color: white !important;
+    }
+
+    .btn-light {
+        background-color: var(--admin-bg) !important;
+        border-color: var(--admin-border) !important;
+        color: var(--admin-text) !important;
+    }
+
+    .btn-light:hover {
+        background-color: rgba(44, 110, 91, 0.1) !important;
+        border-color: #2C6E5B !important;
+        color: #2C6E5B !important;
+    }
+
+    /* Estilos para modales */
+    .modal-content {
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+        border: 1px solid var(--admin-border);
+    }
+
+    .modal-header {
+        background-color: rgba(44, 110, 91, 0.12);
+        border-color: var(--admin-border);
+        color: var(--admin-text);
+    }
+
+    .modal-footer {
+        border-color: var(--admin-border);
+        background-color: transparent;
+    }
+
+    /* Estilo para cards */
+    .card {
+        background-color: var(--admin-bg);
+        border-color: var(--admin-border);
+        color: var(--admin-text);
+    }
+
+    .card-header {
+        background-color: rgba(44, 110, 91, 0.12);
+        border-color: var(--admin-border);
+        color: var(--admin-text);
+    }
+
+    .card-body {
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+    }
+
+    .card-footer {
+        background-color: rgba(44, 110, 91, 0.05);
+        border-color: var(--admin-border);
+        color: var(--admin-text);
+    }
+
+    /* Estilos para paginación */
+    .pagination {
+        background-color: transparent;
+    }
+
+    .page-link {
+        background-color: var(--admin-bg);
+        border-color: var(--admin-border);
+        color: var(--admin-text);
+    }
+
+    .page-link:hover {
+        background-color: rgba(44, 110, 91, 0.1);
+        border-color: #2C6E5B;
+        color: #2C6E5B;
+    }
+
+    .page-item.active .page-link {
+        background-color: #2C6E5B;
+        border-color: #2C6E5B;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header Principal -->
+    <div class="admin-header">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-shield-alt fa-2x"></i>
+                <div>
+                    <h1 class="mb-0">Panel de Administración</h1>
+                    <p class="mb-0 mt-2">Bienvenido, {{ current_user.nombre }}. Aquí puedes gestionar usuarios y reportes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación Secundaria -->
+    <div class="nav-admin">
+        <div class="nav nav-tabs">
+            <a class="nav-link active" href="{{ url_for('admin.dashboard') }}" role="tab">
+                <i class="fas fa-chart-line me-2"></i>Dashboard
+            </a>
+            <a class="nav-link" href="{{ url_for('admin.usuarios') }}" role="tab">
+                <i class="fas fa-users me-2"></i>Gestionar Usuarios
+            </a>
+            <a class="nav-link" href="{{ url_for('admin.reportes') }}" role="tab">
+                <i class="fas fa-file-alt me-2"></i>Gestionar Reportes
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="row mb-30">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <i class="fas fa-users fa-2x mb-2" style="color: #2C6E5B;"></i>
+                <div class="stat-number">{{ stats.total_usuarios }}</div>
+                <div class="stat-label">Total de Usuarios</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <i class="fas fa-user-check fa-2x mb-2" style="color: #4E876C;"></i>
+                <div class="stat-number">{{ stats.usuarios_activos }}</div>
+                <div class="stat-label">Usuarios Activos</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <i class="fas fa-file-alt fa-2x mb-2" style="color: #A06C35;"></i>
+                <div class="stat-number">{{ stats.total_reportes }}</div>
+                <div class="stat-label">Total de Reportes</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <i class="fas fa-check-circle fa-2x mb-2" style="color: #4A6E8A;"></i>
+                <div class="stat-number">{{ stats.reportes_por_estado.get('Approved', 0) }}</div>
+                <div class="stat-label">Reportes Aprobados</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Últimos Usuarios Registrados -->
+        <div class="col-lg-6">
+            <div class="admin-section">
+                <div class="section-title">
+                    <i class="fas fa-user-plus"></i>Últimos Usuarios Registrados
+                </div>
+                <div class="table-responsive">
+                    {% if ultimos_usuarios %}
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in ultimos_usuarios %}
+                            <tr>
+                                <td>{{ usuario.nombre }}</td>
+                                <td>{{ usuario.email }}</td>
+                                <td>
+                                    {% if usuario.rol == 'admin' %}
+                                        <span class="badge bg-danger">{{ usuario.rol.upper() }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ usuario.rol.upper() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ usuario.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay usuarios registrados</p>
+                    {% endif %}
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin.usuarios') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Ver Todos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimos Reportes -->
+        <div class="col-lg-6">
+            <div class="admin-section">
+                <div class="section-title">
+                    <i class="fas fa-file-upload"></i>Últimos Reportes Cargados
+                </div>
+                <div class="table-responsive">
+                    {% if ultimos_reportes %}
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>WO</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                                <th>Carga</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reporte in ultimos_reportes %}
+                            <tr>
+                                <td><strong>{{ reporte.wo }}</strong></td>
+                                <td>{{ reporte.usuario_asignado }}</td>
+                                <td>
+                                    <span class="estado-badge {% if reporte.status == 'Approved' %}approved{% elif reporte.status == 'Pending' %}pending{% else %}rejected{% endif %}">
+                                        {{ reporte.status or 'N/A' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ reporte.fecha_carga.strftime('%d/%m/%Y %H:%M') }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay reportes cargados</p>
+                    {% endif %}
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('admin.reportes') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Ver Todos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reportes por Estado -->
+    <div class="row mt-20">
+        <div class="col-lg-12">
+            <div class="admin-section">
+                <div class="section-title">
+                    <i class="fas fa-chart-bar"></i>Reportes por Estado
+                </div>
+                <div class="row">
+                    {% for estado, cantidad in stats.reportes_por_estado.items() %}
+                    <div class="col-md-3 col-sm-6 mb-3">
+                        <div class="card border-left-primary bg-light">
+                            <div class="card-body p-3">
+                                <p class="card-text text-muted mb-1">{{ estado }}</p>
+                                <h5 class="mb-0" style="color: #2C6E5B;">{{ cantidad }}</h5>
+                                <small class="text-muted">reporte(s)</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mb-30 {
+        margin-bottom: 30px;
+    }
+    .mt-20 {
+        margin-top: 20px;
+    }
+    .border-left-primary {
+        border-left: 4px solid #667eea !important;
+    }
+
+    /* Estilos para tarjetas en modo oscuro */
+    .card {
+        background-color: var(--admin-bg);
+        color: var(--admin-text);
+        border-color: var(--admin-border);
+    }
+
+    .card.bg-light {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+        color: var(--admin-text);
+    }
+
+    .card-text {
+        color: var(--admin-text-muted) !important;
+    }
+
+    .card-body {
+        color: var(--admin-text);
+    }
+</style>
+        border-left: 4px solid #667eea !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Actualizar estadísticas cada 5 minutos
+    setInterval(function() {
+        fetch('{{ url_for("admin.api_estadisticas") }}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Estadísticas actualizadas:', data);
+                // Aquí podrías actualizar los números en tiempo real
+            })
+            .catch(error => console.error('Error actualizando estadísticas:', error));
+    }, 300000); // 5 minutos
+</script>
+{% endblock %}

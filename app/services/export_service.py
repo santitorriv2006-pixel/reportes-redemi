@@ -297,6 +297,119 @@ class ExportService:
             return None
     
     @staticmethod
+    def export_filtrado_excel(usuario=None, fecha_inicio=None, fecha_fin=None, 
+                              grupo=None, tipo=None, status=None):
+        """
+        Exporta reportes con todos los filtros aplicados
+        
+        Args:
+            usuario: Nombre del usuario (None para todos)
+            fecha_inicio: Fecha inicio (opcional)
+            fecha_fin: Fecha fin (opcional)
+            grupo: Filtrar por grupo (opcional)
+            tipo: Filtrar por tipo (opcional)
+            status: Filtrar por status (opcional)
+        
+        Returns:
+            BytesIO: Archivo Excel en memoria
+        """
+        try:
+            # Construir query con filtros
+            query = Reporte.query
+            
+            if usuario:
+                query = query.filter(Reporte.usuario_asignado.ilike(f'%{usuario}%'))
+            
+            if fecha_inicio:
+                query = query.filter(Reporte.fecha >= fecha_inicio)
+            
+            if fecha_fin:
+                query = query.filter(Reporte.fecha <= fecha_fin)
+            
+            if grupo:
+                query = query.filter_by(grupo=grupo)
+            
+            if tipo:
+                query = query.filter_by(tipo=tipo)
+            
+            if status:
+                query = query.filter_by(status=status)
+            
+            reportes = query.order_by(
+                Reporte.usuario_asignado,
+                Reporte.fecha.desc()
+            ).all()
+            
+            if not reportes:
+                logger_excel.warning("No hay reportes para exportar con los filtros especificados")
+                return None
+            
+            # Crear dataframe
+            datos = []
+            total_aprobadas = 0
+            total_reales = 0
+            
+            for reporte in reportes:
+                datos.append({
+                    'WO': reporte.wo,
+                    'Usuario Asignado': reporte.usuario_asignado,
+                    'Fecha': reporte.fecha.strftime('%Y-%m-%d'),
+                    'Horas Aprobadas': reporte.horas_aprobadas,
+                    'Horas Reales': reporte.horas_reales,
+                    'Diferencia Horas': reporte.calcular_diferencia(),
+                    'Grupo': reporte.grupo,
+                    'Status': reporte.status,
+                    'Tipo': reporte.tipo if hasattr(reporte, 'tipo') else ''
+                })
+                total_aprobadas += reporte.horas_aprobadas
+                total_reales += reporte.horas_reales
+            
+            df = pd.DataFrame(datos)
+            
+            # Agregar fila de totales
+            fila_totales = {
+                'WO': 'TOTAL',
+                'Usuario Asignado': f'Total ({len(reportes)} registros)',
+                'Fecha': '',
+                'Horas Aprobadas': total_aprobadas,
+                'Horas Reales': total_reales,
+                'Diferencia Horas': round(total_reales - total_aprobadas, 2),
+                'Grupo': '',
+                'Status': '',
+                'Tipo': ''
+            }
+            
+            df = pd.concat([df, pd.DataFrame([fila_totales])], ignore_index=True)
+            
+            # Crear archivo Excel con formato
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                df.to_excel(writer, sheet_name='Reportes', index=False)
+                
+                # Formatear columnas
+                worksheet = writer.sheets['Reportes']
+                for column in worksheet.columns:
+                    max_length = 0
+                    column_letter = column[0].column_letter
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = min(max_length + 2, 50)
+                    worksheet.column_dimensions[column_letter].width = adjusted_width
+            
+            output.seek(0)
+            logger_excel.info(f"Reporte filtrado exportado: {len(reportes)} registros")
+            
+            return output
+            
+        except Exception as e:
+            logger_excel.error(f"Error exportando reporte filtrado: {str(e)}")
+            return None
+    
+    @staticmethod
     def get_filename_export(usuario=None, incluir_fecha=True):
         """
         Genera nombre de archivo para descarga

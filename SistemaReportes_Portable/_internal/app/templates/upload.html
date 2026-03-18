@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">
+                <i class="fas fa-file-upload"></i> Carga de Archivos Excel
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Arrastra tu archivo aquí</h4>
+                        <p>o haz clic para seleccionar</p>
+                        <input type="file" id="fileInput" accept=".xlsx" style="display: none;">
+                    </div>
+                    <small class="text-muted d-block mt-3">
+                        Formato: .xlsx | Tamaño máximo: 50MB
+                    </small>
+                </div>
+            </div>
+
+            <div id="uploadProgress" class="card mt-3" style="display: none;">
+                <div class="card-body">
+                    <div class="progress">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p class="mt-2" id="progressText">Cargando...</p>
+                </div>
+            </div>
+
+            <div id="uploadResult" class="alert mt-3" style="display: none;"></div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Requisitos de Columnas</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><strong>WO</strong> - Número de orden</li>
+                        <li><strong>Usuario Asignado</strong> - Nombre del usuario</li>
+                        <li><strong>Fecha</strong> - Fecha (YYYY-MM-DD)</li>
+                        <li><strong>Horas Aprobadas</strong> - Horas aprobadas</li>
+                        <li><strong>Horas Reales</strong> - Horas reales</li>
+                        <li><strong>Grupo</strong> - Grupo de trabajo</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Historial de Cargas</h5>
+                </div>
+                <div class="card-body" id="historialContainer" style="max-height: 400px; overflow-y: auto;">
+                    <p class="text-muted">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatearNumero(numero, decimales = 2) {
+    const factor = Math.pow(10, decimales);
+    const rounded = Math.round(numero * factor) / factor;
+    const formatted = rounded.toFixed(decimales);
+    
+    // Separar enteros de decimales
+    const [parteEntera, parteDecimal] = formatted.split('.');
+    
+    // Agregar puntos cada 3 dígitos en la parte entera
+    const conMiles = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    // No mostrar decimales si son .00
+    if (parteDecimal === '00') {
+        return conMiles;
+    }
+    
+    // Retornar con coma como separador decimal
+    return `${conMiles},${parteDecimal}`;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+
+    loadHistorial();
+});
+
+function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('uploadArea').classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    document.getElementById('uploadArea').classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('uploadArea').classList.remove('drag-over');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        uploadFile(files[0]);
+    }
+}
+
+function handleFileSelect(e) {
+    if (e.target.files.length > 0) {
+        uploadFile(e.target.files[0]);
+    }
+}
+
+function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('uploadResult').style.display = 'none';
+
+    fetch('/upload/archivo', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        showUploadResult(data);
+        loadHistorial();
+    })
+    .catch(error => {
+        showUploadResult({
+            success: false,
+            message: 'Error en la carga: ' + error.message
+        });
+    });
+}
+
+function showUploadResult(data) {
+    const resultDiv = document.getElementById('uploadResult');
+    resultDiv.style.display = 'block';
+    
+    if (data.success) {
+        resultDiv.className = 'alert alert-success';
+        const stats = data.statistics;
+        resultDiv.innerHTML = `
+            <h5><i class="fas fa-check-circle"></i> Carga Exitosa</h5>
+            <p>${data.message}</p>
+            <ul>
+                <li>Registros insertados: <strong>${stats.registros_insertados}</strong></li>
+                <li>Errores: <strong>${stats.registros_error}</strong></li>
+                <li>Usuarios únicos: <strong>${stats.usuarios_unicos}</strong></li>
+                <li>Horas aprobadas totales: <strong>${formatearNumero(stats.total_horas_aprobadas, 2)}</strong></li>
+            </ul>
+            <p class="mt-3 text-info">Redirigiendo a reportes en 2 segundos...</p>
+        `;
+        
+        // Redireccionar a reportes después de 2 segundos
+        setTimeout(() => {
+            window.location.href = '/reportes';
+        }, 2000);
+    } else {
+        resultDiv.className = 'alert alert-danger';
+        resultDiv.innerHTML = `
+            <h5><i class="fas fa-exclamation-circle"></i> Error en la Carga</h5>
+            <p>${data.message}</p>
+        `;
+    }
+    
+    document.getElementById('uploadProgress').style.display = 'none';
+}
+
+function loadHistorial() {
+    fetch('/upload/historial?page=1')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = document.getElementById('historialContainer');
+            if (data.historial.length === 0) {
+                container.innerHTML = '<p class="text-muted">Sin cargas previas</p>';
+                return;
+            }
+
+            let html = '<ul class="list-unstyled">';
+            data.historial.forEach(carga => {
+                const icono = carga.estado === 'exitoso' 
+                    ? '<i class="fas fa-check text-success"></i>'
+                    : '<i class="fas fa-exclamation text-warning"></i>';
+                
+                html += `
+                    <li class="mb-2 pb-2 border-bottom">
+                        <small>${icono} ${carga.nombre_archivo}</small>
+                        <br>
+                        <small class="text-muted">${carga.registros_procesados} registros</small>
+                        <br>
+                        <small class="text-muted">${new Date(carga.fecha_carga).toLocaleString()}</small>
+                    </li>
+                `;
+            });
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+    });
+}
+</script>
+{% endblock %}

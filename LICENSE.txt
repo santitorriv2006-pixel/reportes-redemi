@@ -1,0 +1,18 @@
+Sistema de Gestión de Reportes Empresariales
+Version 1.0.0
+
+LICENCIA
+
+Términos y Condiciones de Uso
+
+Este software es proporcionado "tal como está", sin garantía de ningún tipo, 
+ya sea expresa o implícita, incluyendo garantías de comerciabilidad o 
+idoneidad para un propósito particular.
+
+El usuario acepta utilizar este software bajo su propio riesgo.
+
+Los autores no serán responsables de ningún daño directo, indirecto, 
+accidental, especial, ejemplar o consecuente resultante del uso de este 
+software, incluso si se ha informado de la posibilidad de tales daños.
+
+© 2026 - Todos los derechos reservados

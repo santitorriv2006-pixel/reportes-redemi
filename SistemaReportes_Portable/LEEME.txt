@@ -1,0 +1,18 @@
+# Sistema de Gestión de Reportes - Versión Portable
+
+## Cómo usar:
+
+1. Extrae esta carpeta en cualquier ubicación
+2. Ejecuta: SistemaReportes.exe
+3. El navegador se abrirá automáticamente en http://localhost:5000
+
+## Configuración:
+
+- Edita el archivo .env para cambiar la configuración
+- La base de datos SQLite se crea automáticamente
+
+## Notas:
+
+- La primera ejecución creará la base de datos
+- Asegúrate de tener puerto 5000 disponible
+- Para cambiar el puerto, edita .env
