@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 import os
+from difflib import get_close_matches
 from logger_config import logger_excel
 from config import Config
 
@@ -9,13 +10,14 @@ class ExcelProcessingService:
     Servicio para procesar y validar archivos Excel
     """
     
-    COLUMNAS_OBLIGATORIAS = {
-        'WO',
-        'Usuario Asignado',
-        'Fecha',
-        'Horas Aprobadas',
-        'Horas Reales',
-        'Grupo'
+    # Columnas requeridas con variaciones aceptadas
+    COLUMNAS_REQUERIDAS = {
+        'WO': ['WO', 'wo', 'ORDEN TRABAJO', 'orden trabajo', 'orden_trabajo', 'ot', 'ticket'],
+        'Usuario Asignado': ['Usuario Asignado', 'usuario', 'usuario asignado', 'usuario_asignado', 'assignee', 'responsable', 'técnico'],
+        'Fecha': ['Fecha', 'fecha', 'date', 'fecha_inicio', 'fecha inicio'],
+        'Horas Aprobadas': ['Horas Aprobadas', 'horas aprobadas', 'horas_aprobadas', 'horas aprob', 'h. aprobadas', 'approved hours'],
+        'Horas Reales': ['Horas Reales', 'horas reales', 'horas_reales', 'horas real', 'h. reales', 'actual hours', 'horas trabajo'],
+        'Grupo': ['Grupo', 'grupo', 'team', 'equipo', 'grupo_trabajo', 'departamento', 'area']
     }
     
     @staticmethod
@@ -24,60 +26,182 @@ class ExcelProcessingService:
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in Config.ALLOWED_EXTENSIONS
     
     @staticmethod
+    def find_column(df_columns, target_column):
+        """
+        Busca una columna en el dataframe usando fuzzy matching
+        
+        Args:
+            df_columns: Lista de columnas del dataframe
+            target_column: Columna que estamos buscando
+            
+        Returns:
+            tuple: (nombre_columna_encontrada, confianza) o (None, 0)
+        """
+        # Variaciones aceptadas para este campo
+        variaciones = ExcelProcessingService.COLUMNAS_REQUERIDAS.get(target_column, [])
+        
+        # Buscar coincidencia exacta (case-insensitive)
+        for col in df_columns:
+            col_lower = col.lower().strip()
+            for variacion in variaciones:
+                if col_lower == variacion.lower():
+                    logger_excel.info(f"Columna '{target_column}' encontrada como '{col}'")
+                    return col, 1.0
+        
+        # Buscar coincidencia parcial
+        for col in df_columns:
+            for variacion in variaciones:
+                if variacion.lower() in col.lower() or col.lower() in variacion.lower():
+                    logger_excel.info(f"Columna '{target_column}' encontrada parcialmente como '{col}'")
+                    return col, 0.9
+        
+        # Buscar con similitud
+        matches = get_close_matches(target_column.lower(), 
+                                   [c.lower() for c in df_columns], 
+                                   n=1, cutoff=0.6)
+        if matches:
+            # Encontrar la columna original
+            for col in df_columns:
+                if col.lower() == matches[0]:
+                    logger_excel.warning(f"Columna '{target_column}' encontrada como '{col}' (similitud)")
+                    return col, 0.7
+        
+        logger_excel.warning(f"Columna '{target_column}' NO encontrada en el archivo")
+        return None, 0
+    
+    @staticmethod
     def validate_file(filepath):
         """
         Valida el archivo Excel antes de procesarlo
-        Soporta múltiples hojas: 1-Solicitudes, 2-Incidentes, 3-Tareas
+        Busca automáticamente las columnas requeridas en cualquier hoja
         
         Returns:
             tuple: (es_valido, mensaje_error, datos)
         """
         excel_file = None
         try:
-            # Leer todas las hojas del archivo
+            # Leer el archivo
             excel_file = pd.ExcelFile(filepath)
-            logger_excel.info(f"Hojas encontradas: {excel_file.sheet_names}")
+            logger_excel.info(f"🔍 Analizando archivo con hojas: {excel_file.sheet_names}")
             
             dfs_combined = []
             
-            # Mapear hojas a tipos
-            sheet_type_map = {
-                '1-Solicitudes': 'Solicitud',
-                '2-Incidentes': 'Incidente',
-                '3-Tareas': 'Tarea'
-            }
-            
             # Procesar cada hoja
-            for sheet_name in excel_file.sheet_names:
-                if sheet_name not in sheet_type_map:
-                    continue
+            for idx, sheet_name in enumerate(excel_file.sheet_names, 1):
+                logger_excel.info(f"\n📄 Procesando hoja {idx}: '{sheet_name}'")
+                
+                try:
+                    df = pd.read_excel(filepath, sheet_name=sheet_name, dtype=str)
+                    if df.empty:
+                        logger_excel.warning(f"   ⚠️ Hoja vacía")
+                        continue
                     
-                df = pd.read_excel(filepath, sheet_name=sheet_name)
-                logger_excel.info(f"Hoja leída: {sheet_name} con {len(df)} registros")
-                
-                # Verificar columnas obligatorias
-                columnas_faltantes = ExcelProcessingService.COLUMNAS_OBLIGATORIAS - set(df.columns)
-                if columnas_faltantes:
-                    mensaje = f"Columnas faltantes en {sheet_name}: {', '.join(columnas_faltantes)}"
-                    logger_excel.error(mensaje)
+                    logger_excel.info(f"   ✓ {len(df)} filas, columnas: {list(df.columns)}")
+                    
+                    # Buscar columnas requeridas
+                    col_map = {}
+                    columnas_faltantes = []
+                    
+                    for col_requerida in ExcelProcessingService.COLUMNAS_REQUERIDAS.keys():
+                        col_encontrada, confianza = ExcelProcessingService.find_column(
+                            df.columns, 
+                            col_requerida
+                        )
+                        
+                        if col_encontrada:
+                            col_map[col_requerida] = col_encontrada
+                            logger_excel.info(f"   ✓ {col_requerida} → '{col_encontrada}' (confianza: {confianza:.0%})")
+                        else:
+                            columnas_faltantes.append(col_requerida)
+                            logger_excel.warning(f"   ✗ {col_requerida} - NO ENCONTRADA")
+                    
+                    # Si falta alguna columna obligatoria, saltar esta hoja
+                    if columnas_faltantes:
+                        logger_excel.warning(f"   ❌ Hoja rechazada. Faltan: {', '.join(columnas_faltantes)}")
+                        continue
+                    
+                    # Renombrar columnas al formato estándar
+                    df = df.rename(columns=col_map)
+                    
+                    # Determinar el tipo de dato
+                    tipo = 'Solicitud'
+                    if 'incidente' in sheet_name.lower():
+                        tipo = 'Incidente'
+                    elif 'tarea' in sheet_name.lower():
+                        tipo = 'Tarea'
+                    
+                    df['Tipo'] = tipo
+                    dfs_combined.append(df)
+                    logger_excel.info(f"   ✅ Hoja procesada como tipo '{tipo}'")
+                    
+                except Exception as e:
+                    logger_excel.error(f"   ❌ Error procesando hoja '{sheet_name}': {str(e)}")
                     continue
-                
-                # Agregar columna de tipo
-                df['Tipo'] = sheet_type_map[sheet_name]
-                dfs_combined.append(df)
             
             if not dfs_combined:
-                return False, "No se encontraron hojas válidas (1-Solicitudes, 2-Incidentes, 3-Tareas)", None
+                return False, "❌ No se encontraron hojas con las columnas requeridas", None
             
             # Combinar todos los dataframes
             df = pd.concat(dfs_combined, ignore_index=True)
-            logger_excel.info(f"Total de registros combinados: {len(df)}")
+            logger_excel.info(f"\n✅ Total de registros válidos: {len(df)}")
             
             # Validar tipos de datos
             errores = []
             
             # Validar Fecha
             try:
+                df['Fecha'] = pd.to_datetime(df['Fecha'], errors='raise')
+            except Exception as e:
+                logger_excel.error(f"Error en formato de fecha: {str(e)}")
+                # Intentar diferentes formatos
+                try:
+                    df['Fecha'] = pd.to_datetime(df['Fecha'], format='%d/%m/%Y', errors='coerce')
+                    if df['Fecha'].isna().any():
+                        raise ValueError("Fecha inválida después de convertir")
+                except:
+                    errores.append(f"Formato de fecha inválido")
+            
+            # Validar Horas Aprobadas
+            try:
+                df['Horas Aprobadas'] = pd.to_numeric(df['Horas Aprobadas'], errors='coerce')
+                if df['Horas Aprobadas'].isna().any():
+                    raise ValueError("Valores no numéricos")
+            except Exception as e:
+                errores.append(f"Error en Horas Aprobadas: {str(e)}")
+            
+            # Validar Horas Reales
+            try:
+                df['Horas Reales'] = pd.to_numeric(df['Horas Reales'], errors='coerce')
+                if df['Horas Reales'].isna().any():
+                    raise ValueError("Valores no numéricos")
+            except Exception as e:
+                errores.append(f"Error en Horas Reales: {str(e)}")
+            
+            if errores:
+                mensaje = "; ".join(errores)
+                logger_excel.error(mensaje)
+                return False, mensaje, None
+            
+            # Limpiar datos
+            df = df.dropna(subset=['WO', 'Usuario Asignado', 'Grupo'])
+            df['WO'] = df['WO'].astype(str).str.strip()
+            df['Usuario Asignado'] = df['Usuario Asignado'].astype(str).str.strip()
+            df['Grupo'] = df['Grupo'].astype(str).str.strip()
+            
+            logger_excel.info(f"✅ Validación exitosa. {len(df)} registros para procesar")
+            return True, None, df
+            
+        except Exception as e:
+            mensaje = f"❌ Error al procesar archivo: {str(e)}"
+            logger_excel.error(mensaje)
+            return False, mensaje, None
+        finally:
+            # Cerrar el archivo Excel
+            if excel_file is not None:
+                try:
+                    excel_file.close()
+                except:
+                    pass
                 df['Fecha'] = pd.to_datetime(df['Fecha'])
             except Exception as e:
                 errores.append(f"Formato de fecha inválido: {str(e)}")
