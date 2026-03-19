@@ -202,51 +202,6 @@ class ExcelProcessingService:
                     excel_file.close()
                 except:
                     pass
-                df['Fecha'] = pd.to_datetime(df['Fecha'])
-            except Exception as e:
-                errores.append(f"Formato de fecha inválido: {str(e)}")
-            
-            # Validar Horas Aprobadas
-            try:
-                df['Horas Aprobadas'] = pd.to_numeric(df['Horas Aprobadas'], errors='coerce')
-                if df['Horas Aprobadas'].isna().any():
-                    raise ValueError("Valores no numéricos en Horas Aprobadas")
-            except Exception as e:
-                errores.append(f"Error en Horas Aprobadas: {str(e)}")
-            
-            # Validar Horas Reales
-            try:
-                df['Horas Reales'] = pd.to_numeric(df['Horas Reales'], errors='coerce')
-                if df['Horas Reales'].isna().any():
-                    raise ValueError("Valores no numéricos en Horas Reales")
-            except Exception as e:
-                errores.append(f"Error en Horas Reales: {str(e)}")
-            
-            if errores:
-                mensaje = "; ".join(errores)
-                logger_excel.error(mensaje)
-                return False, mensaje, None
-            
-            # Limpiar datos
-            df = df.dropna(subset=['WO', 'Usuario Asignado', 'Grupo'])
-            df['WO'] = df['WO'].astype(str).str.strip()
-            df['Usuario Asignado'] = df['Usuario Asignado'].astype(str).str.strip()
-            df['Grupo'] = df['Grupo'].astype(str).str.strip()
-            
-            logger_excel.info(f"Validación exitosa. {len(df)} registros para procesar")
-            return True, None, df
-            
-        except Exception as e:
-            mensaje = f"Error al procesar archivo: {str(e)}"
-            logger_excel.error(mensaje)
-            return False, mensaje, None
-        finally:
-            # Cerrar el archivo Excel
-            if excel_file is not None:
-                try:
-                    excel_file.close()
-                except:
-                    pass
     
     @staticmethod
     def prepare_for_database(df):
