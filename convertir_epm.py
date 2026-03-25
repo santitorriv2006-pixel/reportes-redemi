@@ -33,7 +33,8 @@ for idx, row in solicitudes_procesadas.iterrows():
         'Horas Aprobadas': float(row.get('Horas_Aprobadas', 0) or 0),
         'Horas Reales': float(row.get('Horas_Reales', 0) or 0),
         'Grupo': str(row.get('ASGRP', 'General')),
-        'Status': str(row.get('Status', 'Pending')).strip() or 'Pending'
+        'Status': str(row.get('Status', 'Pending')).strip() or 'Pending',
+        'Tipo': 'Solicitud'
     })
 
 print(f"   ✓ {len(solicitudes_procesadas)} solicitudes procesadas")
@@ -53,7 +54,8 @@ for idx, row in incidentes_procesados.iterrows():
         'Horas Aprobadas': float(row.get('HorasAsignado', 0) or 0),
         'Horas Reales': float(row.get('HorasAsignado', 0) or 0),
         'Grupo': str(row.get('Grupo Asignado', 'General')),
-        'Status': str(row.get('Estado', 'Pending')).strip() or 'Pending'
+        'Status': str(row.get('Estado', 'Pending')).strip() or 'Pending',
+        'Tipo': 'Incidente'
     })
 
 print(f"   ✓ {len(incidentes_procesados)} incidentes procesados")
@@ -74,7 +76,8 @@ for idx, row in tareas_procesadas.iterrows():
         'Horas Aprobadas': float(row.get('HorasAsignado', 0) or 0),
         'Horas Reales': float(row.get('HorasAsignado', 0) or 0),
         'Grupo': str(row.get('Assignee Group', 'General')),
-        'Status': str(row.get('Status', 'Pending')).strip() or 'Pending'
+        'Status': str(row.get('Status', 'Pending')).strip() or 'Pending',
+        'Tipo': 'Tarea'
     })
 
 print(f"   ✓ {len(tareas_procesadas)} tareas procesadas")

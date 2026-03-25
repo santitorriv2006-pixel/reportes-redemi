@@ -11,7 +11,7 @@ from app.models import Reporte
 def cargar_reportes_reales():
     """Carga reportes desde el archivo Reportes_Convertidos.xlsx"""
     
-    archivo = 'epm.xlsx'
+    archivo = 'archivos/Reportes_Convertidos.xlsx'
     
     try:
         # Leer el archivo
@@ -98,6 +98,18 @@ def cargar_reportes_reales():
                     # Convertir fecha
                     fecha = pd.to_datetime(row[columnas_bd['fecha']]).date()
                     
+                    # Obtener valor de status (puede ser None o una columna)
+                    if columnas_bd['status'] is not None and columnas_bd['status'] in df.columns:
+                        status = str(row[columnas_bd['status']]).strip()
+                    else:
+                        status = 'Pending'
+                    
+                    # Obtener valor de tipo (puede ser None o una columna)
+                    if columnas_bd['tipo'] is not None and columnas_bd['tipo'] in df.columns:
+                        tipo = str(row[columnas_bd['tipo']]).strip()
+                    else:
+                        tipo = 'Solicitud'
+                    
                     reporte = Reporte(
                         wo=str(row[columnas_bd['wo']]).strip(),
                         usuario_asignado=str(row[columnas_bd['usuario_asignado']]).strip(),
@@ -105,8 +117,8 @@ def cargar_reportes_reales():
                         horas_aprobadas=float(row[columnas_bd['horas_aprobadas']]),
                         horas_reales=float(row[columnas_bd['horas_reales']]),
                         grupo=str(row[columnas_bd['grupo']]).strip(),
-                        status=str(row[columnas_bd['status']]).strip() if columnas_bd['status'] is not None else 'Pending',
-                        tipo=str(row[columnas_bd['tipo']]).strip() if columnas_bd['tipo'] is not None else 'Solicitud',
+                        status=status,
+                        tipo=tipo,
                         fecha_carga=datetime.utcnow()
                     )
                     db.session.add(reporte)
